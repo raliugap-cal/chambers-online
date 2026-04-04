@@ -1,0 +1,2043 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chambers-online — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0d0f; --surface: #141417; --surface2: #1a1a1e; --surface3: #222226;
+  --border: rgba(255,255,255,.07); --border2: rgba(255,255,255,.1);
+  --text: #f0f0f3; --muted: #6b6b7a; --accent: #c8f542; --accent-dark: #a8d832;
+  --accent-dim: rgba(200,245,66,.12);
+  --green: #34d399; --green-dim: rgba(52,211,153,.15);
+  --blue: #60a5fa;  --blue-dim: rgba(96,165,250,.15);
+  --amber: #fbbf24; --amber-dim: rgba(251,191,36,.15);
+  --red: #f87171;   --red-dim: rgba(248,113,113,.15);
+  --purple: #a78bfa; --purple-dim: rgba(167,139,250,.15);
+  --font-head: 'Space Grotesk', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: var(--font-body); font-size: 14px; display: flex; height: 100vh; overflow: hidden; }
+
+/* SIDEBAR */
+.sidebar { width: 220px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 0; position: fixed; height: 100vh; z-index: 100; overflow-y: auto; }
+.sidebar-logo { padding: 20px 18px 16px; border-bottom: 1px solid var(--border); }
+.logo-text { font-family: var(--font-head); font-size: 20px; font-weight: 800; color: var(--text); }
+.logo-text span { color: var(--accent); }
+.logo-badge { font-size: 10px; color: var(--muted); margin-top: 2px; font-family: var(--mono); letter-spacing: .05em; }
+.nav-section { padding: 12px 10px 4px; }
+.nav-label { font-size: 10px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; padding: 0 8px; margin-bottom: 4px; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 8px; cursor: pointer; font-size: 13px; color: var(--muted); transition: all .15s; white-space: nowrap; font-family: var(--font-head); font-weight: 500; }
+.nav-item:hover { background: var(--surface2); color: var(--text); }
+.nav-item.active { background: var(--accent-dim); color: var(--accent); }
+.nav-item.active .nav-icon { color: var(--accent); }
+.nav-icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--muted); }
+.nav-item:hover .nav-icon { color: var(--text); }
+.nav-badge { font-size: 10px; font-weight: 700; background: var(--amber); color: #000; padding: 1px 6px; border-radius: 20px; margin-left: auto; }
+.nav-badge.amber { background: var(--amber); color: #000; }
+
+/* MAIN */
+.main { margin-left: 220px; flex: 1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+.topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 28px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+.page-title { font-family: var(--font-head); font-size: 18px; font-weight: 700; color: var(--text); }
+.topbar-actions { display: flex; align-items: center; gap: 12px; }
+.live-indicator { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--green); font-weight: 600; }
+.admin-chip { display: flex; align-items: center; gap: 8px; background: var(--surface2); border: 1px solid var(--border2); border-radius: 20px; padding: 5px 12px 5px 5px; font-size: 12px; }
+.admin-avatar { width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: #000; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; font-family: var(--font-head); }
+
+/* PAGES */
+.page { display: none; flex: 1; overflow-y: auto; padding: 24px 28px; }
+.page.active { display: block; }
+
+/* KPI GRID */
+.kpi-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 20px; }
+.kpi { background: var(--surface); border: 1.5px solid var(--border2); border-radius: 14px; padding: 18px; }
+.kpi-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.kpi-label { font-size: 12px; color: var(--muted); font-weight: 500; }
+.kpi-icon { width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+.kpi-val { font-family: var(--font-head); font-size: 28px; font-weight: 800; color: var(--text); margin-bottom: 4px; }
+.kpi-delta { font-size: 11px; color: var(--muted); }
+.kpi-delta.pos { color: var(--green); }
+
+/* CHARTS */
+.charts-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 14px; margin-bottom: 20px; }
+.chart-card { background: var(--surface); border: 1.5px solid var(--border2); border-radius: 14px; padding: 20px; }
+.chart-title { font-family: var(--font-head); font-size: 14px; font-weight: 600; margin-bottom: 16px; }
+.bar-chart { display: flex; align-items: flex-end; gap: 8px; height: 120px; }
+.bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; justify-content: flex-end; }
+.bar-fill { width: 100%; border-radius: 4px 4px 0 0; min-height: 4px; transition: height .4s; }
+.bar-label { font-size: 10px; color: var(--muted); }
+.bar-val { font-size: 10px; color: var(--muted); font-family: var(--mono); }
+.legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+.legend-item span { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+
+/* TABLES */
+.table-card { background: var(--surface); border: 1.5px solid var(--border2); border-radius: 14px; overflow: hidden; margin-bottom: 16px; }
+.table-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+.table-title { font-family: var(--font-head); font-size: 14px; font-weight: 600; }
+.table-actions { display: flex; align-items: center; gap: 10px; }
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table th { padding: 10px 16px; text-align: left; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; border-bottom: 1px solid var(--border); background: var(--surface2); }
+.data-table td { padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: middle; }
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: rgba(255,255,255,.02); }
+.cell-mono { font-family: var(--mono); font-size: 12px; }
+
+/* PROVIDER CELL */
+.provider-cell { display: flex; align-items: center; gap: 10px; }
+.prov-avatar { width: 34px; height: 34px; border-radius: 8px; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.prov-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.prov-type { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.actions-cell { display: flex; gap: 5px; }
+
+/* BUTTONS */
+.btn-sm { padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; border: 1px solid var(--border2); background: var(--surface2); color: var(--text); font-family: var(--font-head); transition: all .15s; white-space: nowrap; }
+.btn-sm:hover { background: var(--surface3); border-color: rgba(255,255,255,.2); }
+.btn-sm.success { background: var(--green-dim); border-color: var(--green); color: var(--green); }
+.btn-sm.danger  { background: var(--red-dim);   border-color: var(--red);   color: var(--red); }
+.btn-sm.primary { background: var(--accent); border-color: var(--accent); color: #000; }
+.btn-sm.primary:hover { background: var(--accent-dark); }
+
+/* BADGES */
+.badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+.badge.green  { background: var(--green-dim);  color: var(--green); }
+.badge.amber  { background: var(--amber-dim);  color: var(--amber); }
+.badge.red    { background: var(--red-dim);    color: var(--red); }
+.badge.blue   { background: var(--blue-dim);   color: var(--blue); }
+.badge.gray   { background: var(--surface3);   color: var(--muted); }
+
+/* MOD TABS */
+.mod-tabs { display: flex; gap: 4px; margin-bottom: 16px; background: var(--surface2); border-radius: 10px; padding: 4px; width: fit-content; }
+.mod-tab { padding: 7px 14px; border-radius: 7px; border: none; background: transparent; color: var(--muted); font-size: 12px; font-weight: 600; cursor: pointer; font-family: var(--font-head); transition: all .15s; }
+.mod-tab.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,.3); }
+
+/* SETTINGS */
+.settings-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+.setting-card { background: var(--surface); border: 1.5px solid var(--border2); border-radius: 14px; padding: 20px; }
+.setting-title { font-family: var(--font-head); font-size: 14px; font-weight: 600; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+.setting-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.setting-row:last-child { border-bottom: none; padding-bottom: 0; }
+.setting-name { font-size: 13px; font-weight: 500; color: var(--text); }
+.setting-desc { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.mini-toggle { width: 36px; height: 20px; border-radius: 20px; background: var(--surface3); border: 1px solid var(--border2); cursor: pointer; position: relative; flex-shrink: 0; transition: background .2s; }
+.mini-toggle.on { background: var(--green); border-color: var(--green); }
+.mini-thumb { position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff; transition: left .2s; }
+.mini-toggle.on .mini-thumb { left: 18px; }
+.number-input { background: var(--surface2); border: 1px solid var(--border2); border-radius: 6px; padding: 5px 8px; color: var(--text); font-family: var(--mono); font-size: 13px; outline: none; }
+.search-input { background: var(--surface2); border: 1px solid var(--border2); border-radius: 8px; padding: 8px 12px; color: var(--text); font-family: var(--font-body); font-size: 13px; outline: none; }
+.search-input:focus { border-color: var(--accent); }
+
+/* CATEGORIES / ADS */
+.cat-row { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--border); transition: background .15s; }
+.cat-row:hover { background: rgba(255,255,255,.025); }
+.cat-row:last-child { border-bottom: none; }
+.cat-emoji { font-size: 20px; width: 32px; text-align: center; flex-shrink: 0; }
+.cat-info { flex: 1; min-width: 0; }
+.cat-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.cat-id { font-size: 11px; color: var(--muted); }
+.cat-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.ad-row { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+.ad-row:hover { background: rgba(255,255,255,.02); }
+.ad-row:last-child { border-bottom: none; }
+.ad-icon-sm { width: 36px; height: 36px; border-radius: 8px; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.ad-info { flex: 1; min-width: 0; }
+.ad-info-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.ad-info-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.ad-plan-pill { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px; flex-shrink: 0; }
+.pill-basic { background: var(--blue-dim); color: var(--blue); }
+.pill-standard { background: var(--green-dim); color: var(--green); }
+.pill-premium { background: var(--accent-dim); color: var(--accent); }
+.ad-stat { font-size: 11px; color: var(--muted); text-align: center; min-width: 44px; }
+.ad-stat strong { display: block; font-size: 14px; font-weight: 700; color: var(--text); }
+.plan-btn { padding: 10px 8px; border-radius: 9px; border: 1.5px solid var(--border2); background: var(--surface); text-align: center; cursor: pointer; transition: all .2s; }
+.plan-btn.active { border-color: var(--accent); background: var(--accent-dim); }
+
+/* LANGUAGE TOGGLE */
+.lang-toggle { display: flex; gap: 4px; background: rgba(255,255,255,.05); border-radius: 20px; padding: 3px; border: 1px solid var(--border); }
+.lang-btn { padding: 4px 10px; border-radius: 16px; font-size: 11px; font-weight: 600; cursor: pointer; border: none; background: transparent; color: var(--muted); font-family: inherit; transition: all .2s; }
+.lang-btn.active { background: var(--accent); color: #000; }
+
+/* TOAST */
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--surface); border: 1px solid var(--border2); border-radius: 10px; padding: 10px 20px; font-size: 13px; opacity: 0; transition: all .3s; z-index: 999; pointer-events: none; box-shadow: 0 8px 24px rgba(0,0,0,.4); }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.success { border-color: var(--green); color: var(--green); }
+.toast.error   { border-color: var(--red);   color: var(--red); }
+
+/* ANIMATIONS */
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+</style>
+
+<script src="/_env.js"></script>
+<script src="/db-client.js"></script>
+</head>
+
+
+
+<body>
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-text">Chambers<span>-online</span></div>
+    <div class="logo-badge">ADMIN v2.4</div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Principal</div>
+    <div class="nav-item active" onclick="showPage('dashboard',this)">
+      <span class="nav-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg></span>
+      <span data-i18n="nav_dashboard">Dashboard</span>
+    </div>
+    <div class="nav-item" onclick="showPage('providers',this)">
+      <span class="nav-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+      <span data-i18n="nav_providers">Proveedores</span><span class="nav-badge amber" id="badge-review" style="display:none">0</span>
+    </div>
+    <div class="nav-item" onclick="showPage('categories',this)">
+      <span class="nav-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><path d="M7 7h.01"/></svg></span>
+      <span data-i18n="nav_categories">Categorías</span>
+    </div>
+    <div class="nav-item" onclick="showPage('ads',this)">
+      <span class="nav-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 9V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v10c0 1.1.9 2 2 2h3"/><path d="M13 17l-5-5 7-7 1.5 1.5"/><path d="m16 16 2 2 4-4"/></svg></span>
+      <span>Anuncios</span>
+    </div>
+    <div class="nav-item" onclick="showPage('bookings',this)">
+      <span class="nav-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/><path d="m9 16 2 2 4-4"/></svg></span>
+      <span data-i18n="nav_bookings">Reservas</span>
+    </div>
+    <div class="nav-item" onclick="showPage('disputes',this)">
+      <span class="nav-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg></span>
+      <span data-i18n="nav_disputes">Disputas</span>
+    </div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Finanzas</div>
+    <div class="nav-item" onclick="showPage('payments',this)">
+      <span class="nav-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg></span>
+      <span data-i18n="nav_payments">Pagos</span>
+    </div>
+    <div class="nav-item" onclick="showPage('analytics',this)">
+      <span class="nav-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" x2="18" y1="20" y2="10"/><line x1="12" x2="12" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="14"/></svg></span>
+      <span data-i18n="nav_analytics">Analytics</span>
+    </div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Sistema</div>
+    <div class="nav-item" onclick="showPage('settings',this)">
+      <span class="nav-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></span>
+      <span data-i18n="nav_settings">Configuración</span>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="page-title" id="page-title">Dashboard</div>
+    <div class="topbar-actions">
+      <div class="lang-toggle" style="margin-right:10px">
+        <button class="lang-btn active" data-lang="es" onclick="setLang('es')">ES</button>
+        <button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
+      </div>
+      <div class="live-indicator">
+        <div style="width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite"></div>
+        Live
+      </div>
+      <div class="admin-chip">
+        <div class="admin-avatar">SA</div>
+        <span>Super Admin</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="page active" id="page-dashboard">
+    <div class="kpi-grid" id="dashboard-kpis">
+      <div class="kpi"><div class="kpi-header"><span class="kpi-label" data-i18n="adm_active_prov">Proveedores activos</span><div class="kpi-icon" style="background:var(--green-dim)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div></div><div class="kpi-val" id="kpi-active-providers">—</div><div class="kpi-delta pos" id="kpi-review-delta">cargando...</div></div>
+      <div class="kpi"><div class="kpi-header"><span class="kpi-label" data-i18n="adm_total_books">Reservas totales</span><div class="kpi-icon" style="background:var(--blue-dim)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2"/><line x1="3" x2="21" y1="10" y2="10"/></svg></div></div><div class="kpi-val" id="kpi-bookings">—</div><div class="kpi-delta pos" id="kpi-bookings-delta">en el sistema</div></div>
+      <div class="kpi"><div class="kpi-header"><span class="kpi-label" data-i18n="adm_in_review">Pendientes de revisión</span><div class="kpi-icon" style="background:var(--amber-dim)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/></svg></div></div><div class="kpi-val" id="kpi-review" style="color:var(--amber)">—</div><div class="kpi-delta" style="color:var(--amber)" id="kpi-review-sub">pendientes</div></div>
+      <div class="kpi"><div class="kpi-header"><span class="kpi-label" data-i18n="adm_rating">Calificación promedio</span><div class="kpi-icon" style="background:var(--purple-dim)"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div></div><div class="kpi-val" id="kpi-rating">—</div><div class="kpi-delta pos">proveedores activos</div></div>
+    </div>
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-title">Reservas últimos 7 días</div>
+        <div class="bar-chart" id="bar-chart"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Por categoría</div>
+        <div id="donut-chart" style="display:flex;align-items:center;justify-content:center;height:160px">
+          <svg width="140" height="140" viewBox="0 0 140 140">
+            <circle cx="70" cy="70" r="50" fill="none" stroke="var(--accent)" stroke-width="20" stroke-dasharray="157 157" stroke-dashoffset="0"/>
+            <circle cx="70" cy="70" r="50" fill="none" stroke="var(--blue)" stroke-width="20" stroke-dasharray="94 220" stroke-dashoffset="-157"/>
+            <circle cx="70" cy="70" r="50" fill="none" stroke="var(--green)" stroke-width="20" stroke-dasharray="63 251" stroke-dashoffset="-251"/>
+            <text x="70" y="75" text-anchor="middle" fill="var(--text)" font-size="14" font-weight="700" font-family="var(--font-head)">349</text>
+          </svg>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;padding:0 8px">
+          <div class="legend-item"><span style="background:var(--accent)"></span>Herrería 45%</div>
+          <div class="legend-item"><span style="background:var(--blue)"></span>Plomería 27%</div>
+          <div class="legend-item"><span style="background:var(--green)"></span>Otros 28%</div>
+        </div>
+      </div>
+    </div>
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-title">Total: 349 reservas · $156K GMV</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROVIDERS -->
+  <div class="page" id="page-providers">
+    <div class="mod-tabs">
+      <button class="mod-tab active" onclick="filterProviders('all',this)" id="tab-all">Todos</button>
+      <button class="mod-tab" onclick="filterProviders('review',this)" id="tab-review">En revisión</button>
+      <button class="mod-tab" onclick="filterProviders('suspended',this)" id="tab-suspended">Suspendidos</button>
+      <button class="mod-tab" onclick="filterProviders('active',this)" id="tab-active">Activos</button>
+    </div>
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-title" data-i18n="nav_providers">Proveedores</div>
+        <div class="table-actions">
+          <input class="search-input" placeholder="Buscar nombre, ciudad..." oninput="filterProvidersSearch(this.value)" style="width:220px">
+        </div>
+      </div>
+      <table class="data-table">
+        <thead><tr>
+          <th>Proveedor</th><th>Tipo</th><th>Rating</th>
+          <th>Reservas</th><th>GMV</th><th>Estado</th><th>Riesgo</th><th>Acciones</th>
+        </tr></thead>
+        <tbody id="providers-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- BOOKINGS -->
+  <div class="page" id="page-bookings">
+    <!-- KPI strip -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px" id="bk-kpis"></div>
+
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-title" data-i18n="nav_bookings">Reservas</div>
+        <div class="table-actions">
+          <input class="search-input" id="bk-search" placeholder="Buscar cliente, proveedor..." oninput="filterBookings(null,null)" style="width:220px">
+          <div class="mod-tabs" style="margin:0" id="bk-tabs">
+            <button class="mod-tab active" onclick="filterBookings('all',this)">Todas</button>
+            <button class="mod-tab" onclick="filterBookings('pending',this)">Pendientes</button>
+            <button class="mod-tab" onclick="filterBookings('confirmed',this)">Confirmadas</button>
+            <button class="mod-tab" onclick="filterBookings('completed',this)">Completadas</button>
+            <button class="mod-tab" onclick="filterBookings('cancelled',this)">Canceladas</button>
+          </div>
+        </div>
+      </div>
+      <table class="data-table" id="bk-table">
+        <thead><tr>
+          <th>ID</th><th>Cliente</th><th>Proveedor</th><th>Servicio</th>
+          <th>Fecha</th><th>Monto</th><th>Estado pago</th><th>Estado</th><th>Acciones</th>
+        </tr></thead>
+        <tbody id="bk-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- DISPUTES -->
+  <div class="page" id="page-disputes">
+    <div class="mod-tabs">
+      <button class="mod-tab active" onclick="filterDisputes('all',this)">Todos</button>
+      <button class="mod-tab" onclick="filterDisputes('urgent',this)">Urgentes</button>
+      <button class="mod-tab" onclick="filterDisputes('review',this)">En revisión</button>
+      <button class="mod-tab" onclick="filterDisputes('resolved',this)">Resueltos</button>
+    </div>
+    <div class="table-card">
+      <div class="table-header"><div class="table-title" data-i18n="nav_disputes">Disputas</div></div>
+      <table class="data-table">
+        <thead><tr><th>ID</th><th>Cliente</th><th>Proveedor</th><th>Monto</th><th>Razón</th><th>Estado</th><th>Acciones</th></tr></thead>
+        <tbody id="disputes-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PAYMENTS -->
+  <div class="page" id="page-payments">
+    <!-- KPI strip -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px" id="pay-kpis"></div>
+
+    <div class="table-card" style="margin-bottom:16px">
+      <div class="table-header">
+        <div class="table-title">Desglose de pagos</div>
+        <div class="table-actions">
+          <div class="mod-tabs" style="margin:0" id="pay-tabs">
+            <button class="mod-tab active" onclick="filterPayments('all',this)">Todos</button>
+            <button class="mod-tab" onclick="filterPayments('escrow',this)">En escrow</button>
+            <button class="mod-tab" onclick="filterPayments('released',this)">Liberados</button>
+            <button class="mod-tab" onclick="filterPayments('tips',this)">Con propina</button>
+          </div>
+        </div>
+      </div>
+      <table class="data-table" id="pay-table">
+        <thead><tr>
+          <th>Reserva</th>
+          <th>Profesional</th>
+          <th>Cliente</th>
+          <th>Servicio</th>
+          <th style="color:var(--muted)">Subtotal</th>
+          <th style="color:var(--accent)">Comisión (15%)</th>
+          <th style="color:var(--amber)">Propina</th>
+          <th style="color:var(--green)">Pago al profesional</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr></thead>
+        <tbody id="pay-tbody"></tbody>
+      </table>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div class="table-card" style="padding:20px">
+        <div class="table-title" style="margin-bottom:14px">Estructura de comisiones</div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.8">
+          <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+            <span>Comisión de plataforma</span>
+            <span style="color:var(--accent);font-weight:700">15% del subtotal</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+            <span>Propina al profesional</span>
+            <span style="color:var(--amber);font-weight:700">100% — sin comisión</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+            <span>Pago neto al profesional</span>
+            <span style="color:var(--green);font-weight:700">85% + 100% propina</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:8px 0">
+            <span>Escrow — liberación</span>
+            <span style="color:var(--text);font-weight:600">Al completar servicio</span>
+          </div>
+        </div>
+      </div>
+      <div class="table-card" style="padding:20px">
+        <div class="table-title" style="margin-bottom:14px">Resumen del período</div>
+        <div id="pay-period-summary" style="font-size:13px;color:var(--muted)">Cargando...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ANALYTICS -->
+  <div class="page" id="page-analytics">
+    <div class="kpi-grid">
+      <div class="kpi"><div class="kpi-header"><span class="kpi-label">Visitas</span><div class="kpi-icon" style="background:var(--blue-dim)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div></div><div class="kpi-val">12,840</div><div class="kpi-delta pos">+8% vs semana ant.</div></div>
+      <div class="kpi"><div class="kpi-header"><span class="kpi-label">Conversión</span><div class="kpi-icon" style="background:var(--green-dim)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div></div><div class="kpi-val">3.2%</div><div class="kpi-delta pos">+0.4pp</div></div>
+      <div class="kpi"><div class="kpi-header"><span class="kpi-label">Ticket promedio</span><div class="kpi-icon" style="background:var(--amber-dim)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" x2="12" y1="1" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div></div><div class="kpi-val">$447</div><div class="kpi-delta pos">+12%</div></div>
+      <div class="kpi"><div class="kpi-header"><span class="kpi-label">NPS</span><div class="kpi-icon" style="background:var(--accent-dim)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div></div><div class="kpi-val">72</div><div class="kpi-delta pos">excelente</div></div>
+    </div>
+    <div class="table-card" style="margin-top:16px">
+      <div class="table-header"><div class="table-title">Embudo de conversión</div></div>
+      <div id="funnel-chart" style="padding:20px"></div>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="page" id="page-settings">
+    <div class="settings-grid">
+      <div class="setting-card">
+        <div class="setting-title">Configuración de plataforma</div>
+        <div class="setting-row"><div><div class="setting-name">Comisión plataforma</div><div class="setting-desc">% del total de cada reserva</div></div><input class="number-input" type="number" value="15" min="0" max="50" style="width:70px"> %</div>
+        <div class="setting-row"><div><div class="setting-name">Tiempo mínimo de reserva</div><div class="setting-desc">Horas de anticipación requeridas</div></div><input class="number-input" type="number" value="2" min="1"> hrs</div>
+        <div class="setting-row"><div><div class="setting-name">Radio máximo de servicio</div><div class="setting-desc">Kilómetros máximos de desplazamiento</div></div><input class="number-input" type="number" value="50" min="1"> km</div>
+      </div>
+      <div class="setting-card">
+        <div class="setting-title">Verificación de proveedores</div>
+        <div class="setting-row"><div><div class="setting-name">Auto-aprobación IA</div><div class="setting-desc">Aprobar automáticamente si risk score &lt; 20</div></div><div class="mini-toggle" onclick="toggleSetting(this)"><div class="mini-thumb"></div></div></div>
+        <div class="setting-row"><div><div class="setting-name">Verificación de documentos</div><div class="setting-desc">Requerir documentos antes de activar</div></div><div class="mini-toggle on" onclick="toggleSetting(this)"><div class="mini-thumb"></div></div></div>
+        <div class="setting-row"><div><div class="setting-name">SMS de bienvenida</div><div class="setting-desc">Enviar SMS al aprobar proveedor</div></div><div class="mini-toggle on" onclick="toggleSetting(this)"><div class="mini-thumb"></div></div></div>
+      </div>
+      <div class="setting-card">
+        <div class="setting-title">Notificaciones</div>
+        <div class="setting-row"><div><div class="setting-name">Alertas de riesgo alto</div><div class="setting-desc">Notificar cuando risk score &gt; 70</div></div><div class="mini-toggle on" onclick="toggleSetting(this)"><div class="mini-thumb"></div></div></div>
+        <div class="setting-row"><div><div class="setting-name">Nuevo proveedor registrado</div><div class="setting-desc">Email al registrarse un nuevo proveedor</div></div><div class="mini-toggle on" onclick="toggleSetting(this)"><div class="mini-thumb"></div></div></div>
+        <div class="setting-row"><div><div class="setting-name">Slack webhook</div><div class="setting-desc">Enviar alertas críticas a Slack</div></div><div class="mini-toggle" onclick="toggleSetting(this)"><div class="mini-thumb"></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CATEGORIES -->
+  <div class="page" id="page-categories">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div>
+        <div class="table-card">
+          <div class="table-header">
+            <div class="table-title">Categorías activas</div>
+            <div class="table-actions"><input class="search-input" placeholder="Buscar..." oninput="filterCats(this.value)" style="width:140px"></div>
+          </div>
+          <div id="cats-list" style="max-height:420px;overflow-y:auto"></div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="table-card" style="padding:20px">
+          <div class="table-title" style="margin-bottom:16px" id="cat-form-title">Nueva categoría</div>
+          <div style="margin-bottom:12px"><div class="setting-name" style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:6px" data-i18n="adm_cat_name">Nombre visible</div><input class="search-input" id="cat-name" placeholder="Ej: Herrería" style="width:100%;padding:10px 13px"></div>
+          <div style="margin-bottom:12px"><div class="setting-name" style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:6px" data-i18n="adm_cat_id">ID interno (sin espacios ni acentos)</div><input class="search-input" id="cat-id" placeholder="Ej: herreria" style="width:100%;padding:10px 13px" oninput="sanitizeCatId(this)"><div style="font-size:11px;color:var(--muted);margin-top:4px">Solo letras minúsculas y guiones bajos.</div></div>
+          <div style="margin-bottom:12px"><div class="setting-name" style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:6px" data-i18n="adm_cat_icon">Ícono (emoji)</div><input class="search-input" id="cat-icon" placeholder="⚒️" style="width:100%;padding:10px 13px;font-size:20px"></div>
+          <div style="margin-bottom:16px"><div class="setting-name" style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:6px" data-i18n="adm_cat_desc">Descripción corta</div><input class="search-input" id="cat-desc" placeholder="Ej: Rejas, puertas y estructuras metálicas" style="width:100%;padding:10px 13px"></div>
+          <div style="display:flex;gap:8px">
+            <button class="btn-sm primary" style="flex:1;padding:10px;font-size:13px" onclick="saveCategory()" data-i18n="adm_cat_save">Guardar categoría</button>
+            <button class="btn-sm" id="cat-cancel-btn" style="display:none" onclick="cancelEditCat()" data-i18n="adm_cat_cancel">Cancelar</button>
+          </div>
+        </div>
+        <div class="table-card" style="padding:16px">
+          <div class="table-title" style="margin-bottom:12px">Resumen</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px" id="cat-stats"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADS PAGE -->
+  <div class="page" id="page-ads">
+    <div style="display:grid;grid-template-columns:1fr 380px;gap:16px;align-items:start">
+      <div>
+        <div class="table-card">
+          <div class="table-header">
+            <div class="table-title">Anuncios activos</div>
+            <div class="table-actions">
+              <div style="display:flex;gap:6px" id="ads-filter-tabs">
+                <button class="mod-tab active" onclick="filterAdsList('all',this)">Todos</button>
+                <button class="mod-tab" onclick="filterAdsList('active',this)">Activos</button>
+                <button class="mod-tab" onclick="filterAdsList('paused',this)">Pausados</button>
+                <button class="mod-tab" onclick="filterAdsList('expired',this)">Expirados</button>
+              </div>
+            </div>
+          </div>
+          <div id="ads-list-body" style="max-height:500px;overflow-y:auto"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px" id="ads-stats-grid"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="table-card" style="padding:20px">
+          <div class="table-title" style="margin-bottom:16px" id="ads-form-title">Nuevo anuncio</div>
+          <div style="margin-bottom:12px"><div class="setting-name" style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:6px">Proveedor vinculado</div><select class="search-input" id="ad-provider" style="width:100%;padding:9px 12px" onchange="onAdProviderChange(this)"><option value="">Sin proveedor</option></select></div>
+          <div style="margin-bottom:12px"><div class="setting-name" style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:6px">Nombre del anuncio *</div><input class="search-input" id="ad-name" placeholder="Ej: Herrero Pro — Oferta especial" style="width:100%;padding:9px 12px" oninput="updateAdPreview()"></div>
+          <div style="margin-bottom:12px"><div class="setting-name" style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:6px">Tagline (descripción corta)</div><input class="search-input" id="ad-tagline" placeholder="Especialistas en rejas y puertas..." style="width:100%;padding:9px 12px" oninput="updateAdPreview()"></div>
+          <div style="margin-bottom:12px"><div class="setting-name" style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:6px">🔥 Texto de promoción</div><input class="search-input" id="ad-promo-text" placeholder="Ej: 20% off en primera cita" style="width:100%;padding:9px 12px" oninput="updateAdPreview()"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+            <div><div class="setting-name" style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:6px">Badge de oferta</div><input class="search-input" id="ad-promo-badge" placeholder="OFERTA · 20% · NUEVO" style="width:100%;padding:9px 12px" oninput="updateAdPreview()"></div>
+            <div><div class="setting-name" style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:6px">Color badge</div><select class="search-input" id="ad-promo-badge-color" style="width:100%;padding:9px 12px" onchange="updateAdPreview()"><option value="accent">Verde (acento)</option><option value="amber">Ámbar</option><option value="red">Rojo</option></select></div>
+          </div>
+          <div style="margin-bottom:12px"><div class="setting-name" style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:6px">🖼️ URL imagen del banner</div><input class="search-input" id="ad-image-url" placeholder="https://ejemplo.com/imagen.jpg" style="width:100%;padding:9px 12px" oninput="updateAdPreview()"><div style="font-size:10px;color:var(--muted);margin-top:3px">Imagen principal del anuncio (16:9 recomendado)</div></div>
+          <div style="margin-bottom:12px"><div class="setting-name" style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:6px">Logo / ícono URL</div><input class="search-input" id="ad-logo-url" placeholder="https://ejemplo.com/logo.png" style="width:100%;padding:9px 12px" oninput="updateAdPreview()"><div style="font-size:10px;color:var(--muted);margin-top:3px">Logo cuadrado (se superpone sobre el banner)</div></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+            <div><div class="setting-name" style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:6px">Ícono / Emoji</div><input class="search-input" id="ad-icon" placeholder="⚒️" style="width:100%;padding:9px 12px;font-size:18px" oninput="updateAdPreview()"></div>
+            <div><div class="setting-name" style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:6px">Texto del botón CTA</div><input class="search-input" id="ad-cta-label" placeholder="Ver oferta →" style="width:100%;padding:9px 12px" oninput="updateAdPreview()"></div>
+          </div>
+          <div style="margin-bottom:12px"><div class="setting-name" style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:6px">🔗 URL destino (al hacer clic)</div><input class="search-input" id="ad-url" placeholder="https://ejemplo.com/promo" style="width:100%;padding:9px 12px"><div style="font-size:10px;color:var(--muted);margin-top:3px">Opcional — si está vacío, abre el perfil del proveedor</div></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+            <div><div class="setting-name" style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:6px">Categoría</div><select class="search-input" id="ad-category" style="width:100%;padding:9px 12px"><option value="">Todas</option></select></div>
+            <div></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+            <div><div class="setting-name" style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:6px">Fecha inicio</div><input type="date" class="search-input" id="ad-start" style="width:100%;padding:9px 12px"></div>
+            <div><div class="setting-name" style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:6px">Fecha fin</div><input type="date" class="search-input" id="ad-end" style="width:100%;padding:9px 12px"></div>
+          </div>
+          <div style="margin-bottom:16px">
+            <div class="setting-name" style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:8px">Plan</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px" id="ad-plan-btns">
+              <div class="plan-btn active" data-plan="basic" onclick="selAdPlan('basic',this)"><div style="font-size:11px;font-weight:700;color:var(--text)">Basic</div><div style="font-size:10px;color:var(--muted);margin-top:2px">Columna lateral</div><div style="font-size:13px;font-weight:700;color:var(--accent);margin-top:4px">$299/mes</div></div>
+              <div class="plan-btn" data-plan="standard" onclick="selAdPlan('standard',this)"><div style="font-size:11px;font-weight:700;color:var(--text)">Standard</div><div style="font-size:10px;color:var(--muted);margin-top:2px">Ambas columnas</div><div style="font-size:13px;font-weight:700;color:var(--accent);margin-top:4px">$499/mes</div></div>
+              <div class="plan-btn" data-plan="premium" onclick="selAdPlan('premium',this)"><div style="font-size:11px;font-weight:700;color:var(--text)">Premium</div><div style="font-size:10px;color:var(--muted);margin-top:2px">Top + columnas</div><div style="font-size:13px;font-weight:700;color:var(--accent);margin-top:4px">$799/mes</div></div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+            <div><div class="setting-name" style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:6px">Posición</div><select class="search-input" id="ad-placement" style="width:100%;padding:9px 12px"><option value="both">Ambas columnas</option><option value="left">Solo izquierda</option><option value="right">Solo derecha</option></select></div>
+            <div><div class="setting-name" style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:6px">Presupuesto/mes</div><input type="number" class="search-input" id="ad-budget" placeholder="500" style="width:100%;padding:9px 12px"></div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn-sm primary" style="flex:1;padding:10px;font-size:13px" onclick="saveAd()">Guardar anuncio</button>
+            <button class="btn-sm" id="ad-cancel-btn" style="display:none" onclick="cancelEditAd()">Cancelar</button>
+          </div>
+        </div>
+        <div class="table-card" style="padding:16px">
+          <div class="table-title" style="margin-bottom:12px">Vista previa</div>
+          <div id="ad-preview"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+
+// ── i18n — Bilingual ES/EN ───────────────────────────────────────────────
+const STRINGS = {
+  es: {
+    // Nav
+    nav_search:       'Buscar',
+    nav_tracking:     'En curso',
+    nav_history:      'Historial',
+    nav_dashboard:    'Dashboard',
+    nav_providers:    'Proveedores',
+    nav_bookings:     'Reservas',
+    nav_disputes:     'Disputas',
+    nav_payments:     'Pagos',
+    nav_analytics:    'Analytics',
+    nav_settings:     'Configuración',
+    nav_categories:   'Categorías',
+    // Hero
+    hero_title:       'Encuentra al',
+    hero_highlight:   'profesional',
+    hero_sub:         'cerca de ti',
+    hero_placeholder: '¿Qué servicio necesitas?',
+    btn_search:       'Buscar',
+    // Categories
+    cat_all:          'Todos',
+    // Provider card
+    prov_verified:    'Verificado',
+    prov_company:     'Empresa',
+    prov_independent: 'Independiente',
+    prov_score:       'puntuación',
+    prov_exp_years:   'años exp.',
+    prov_view:        'Ver perfil',
+    prov_per_hour:    '/hora',
+    prov_no_results:  'No hay resultados en esta categoría',
+    prov_in_review:   'profesionales en revisión — disponibles tras la aprobación del administrador',
+    prov_try_other:   'Prueba otra categoría o amplía tu búsqueda',
+    // Profile
+    prof_back:        'Volver',
+    prof_step_profile:'Perfil',
+    prof_step_time:   'Horario',
+    prof_step_confirm:'Confirmar',
+    prof_step_pay:    'Pago',
+    prof_pick_date:   'Selecciona fecha y hora',
+    prof_no_slots:    'No hay horarios disponibles para este día. Intenta con otra fecha.',
+    prof_select_slot: 'Selecciona un horario disponible',
+    prof_book:        'Reservar',
+    prof_at:          'a las',
+    prof_reviews:     'Reseñas de clientes',
+    prof_avg:         'promedio',
+    // Confirm modal
+    modal_title:      'Confirmar tu reserva',
+    modal_provider:   'Proveedor',
+    modal_service:    'Servicio',
+    modal_date:       'Fecha',
+    modal_time:       'Hora',
+    modal_subtotal:   'Servicio (1 hr)',
+    modal_fee:        'Tarifa de servicio (15%)',
+    modal_total:      'Total',
+    modal_escrow:     'Tu pago está protegido — se libera solo al completar el servicio',
+    modal_cancel:     'Cancelar',
+    modal_pay:        'Confirmar y pagar',
+    // Tracking
+    track_confirmed:  'Reserva confirmada',
+    track_escrow:     'Pago reservado y protegido',
+    track_on_way:     'en camino',
+    track_eta:        'Tiempo estimado de llegada',
+    track_in_progress:'Servicio en curso',
+    track_completed:  'Servicio finalizado',
+    track_heading:    'El profesional está en camino',
+    track_updated:    'Actualizado hace un momento',
+    track_min_eta:    'min ETA',
+    btn_call:         'Llamar',
+    btn_chat:         'Chat',
+    btn_complete:     'Completado',
+    // History
+    hist_all:         'Todas',
+    hist_upcoming:    'Próximas',
+    hist_completed:   'Completadas',
+    hist_cancelled:   'Canceladas',
+    hist_status_comp: 'Completado',
+    hist_status_canc: 'Cancelado',
+    hist_status_upco: 'Próxima',
+    hist_rate:        'Dejar reseña',
+    hist_cancel:      'Cancelar reserva',
+    hist_view_prov:   'Ver perfil del profesional',
+    hist_empty:       '¡Aún no tienes reservas!',
+    hist_empty_sub:   'Encuentra un profesional y agenda tu primer servicio',
+    hist_no_results:  'Sin resultados para este filtro',
+    // Rating
+    rate_question:    '¿Cómo calificarías el servicio?',
+    rate_placeholder: 'Cuéntanos más (opcional)...',
+    rate_submit:      'Publicar reseña',
+    // Days / Months
+    days:  ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'],
+    months:['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'],
+    // Toasts
+    toast_booking_created:  'Reserva enviada — esperando que el profesional confirme',
+    toast_booking_cancelled:'Reserva cancelada. El reembolso se procesará en 3-5 días hábiles.',
+    toast_rating_sent:      '¡Gracias por tu reseña!',
+    toast_service_done:     '¡Servicio completado! El pago se liberará al profesional en breve.',
+    toast_call:             'Llamando a ',
+    toast_chat:             'Chat iniciado',
+    // Admin
+    adm_title:        'Dashboard',
+    adm_active_prov:  'Proveedores activos',
+    adm_total_books:  'Total de reservas',
+    adm_in_review:    'Pendientes de revisión',
+    adm_rating:       'Calificación promedio',
+    adm_approve:      'Aprobar',
+    adm_reject:       'Rechazar',
+    adm_suspend:      'Suspender',
+    adm_reactivate:   'Reactivar',
+    adm_view:         'Ver detalles',
+    adm_new_badge:    'NUEVO',
+    adm_tab_all:      'Todos',
+    adm_tab_review:   'En revisión',
+    adm_tab_suspended:'Suspendidos',
+    adm_tab_active:   'Activos',
+    adm_cat_new:      'Nueva categoría',
+    adm_cat_save:     'Guardar categoría',
+    adm_cat_cancel:   'Cancelar',
+    adm_cat_name:     'Nombre visible',
+    adm_cat_id:       'ID interno (sin espacios)',
+    adm_cat_icon:     'Ícono (emoji)',
+    adm_cat_desc:     'Descripción corta',
+    adm_cat_active:   'Activas',
+    adm_cat_total:    'Total',
+    // Provider app
+    prov_online:      'Disponible ahora',
+    prov_offline:     'No disponible',
+    prov_toggle_on:   'Estás disponible — los clientes pueden verte',
+    prov_toggle_off:  'Modo offline — no recibirás solicitudes',
+    prov_requests:    'Solicitudes nuevas',
+    prov_no_requests: 'No tienes solicitudes nuevas',
+    prov_accept:      'Aceptar trabajo',
+    prov_reject_req:  'Rechazar solicitud',
+    prov_earnings:    'Ganancias',
+    prov_today:       'Hoy',
+    prov_this_month:  'Este mes',
+    prov_tab_home:    'Inicio',
+    prov_tab_agenda:  'Mi agenda',
+    prov_tab_earnings:'Ganancias',
+    prov_tab_profile: 'Perfil',
+    // Registration
+    reg_country:      '¿En qué país ofreces tus servicios?',
+    reg_type:         '¿Cómo te quieres registrar?',
+    reg_basic:        'Cuéntanos sobre ti',
+    reg_phone:        'Verifica tu número',
+    reg_services:     '¿Qué servicios ofreces?',
+    reg_schedule:     'Configura tu disponibilidad',
+    reg_docs:         'Verificación de identidad',
+    reg_location:     '¿Cuál es tu zona de trabajo?',
+    reg_confirm:      '¡Tu solicitud fue enviada!',
+    btn_continue:     'Continuar',
+    btn_back:         'Atrás',
+    btn_send_otp:     'Enviar código por SMS',
+    btn_create:       'Crear mi cuenta',
+  },
+  en: {
+    // Nav
+    nav_search:       'Search',
+    nav_tracking:     'In Progress',
+    nav_history:      'History',
+    nav_dashboard:    'Dashboard',
+    nav_providers:    'Providers',
+    nav_bookings:     'Bookings',
+    nav_disputes:     'Disputes',
+    nav_payments:     'Payments',
+    nav_analytics:    'Analytics',
+    nav_settings:     'Settings',
+    nav_categories:   'Categories',
+    // Hero
+    hero_title:       'Find the',
+    hero_highlight:   'professional',
+    hero_sub:         'near you',
+    hero_placeholder: 'What service are you looking for?',
+    btn_search:       'Search',
+    // Categories
+    cat_all:          'All',
+    // Provider card
+    prov_verified:    'Verified',
+    prov_company:     'Company',
+    prov_independent: 'Independent',
+    prov_score:       'score',
+    prov_exp_years:   'yrs exp.',
+    prov_view:        'View profile',
+    prov_per_hour:    '/hr',
+    prov_no_results:  'No professionals found in this category',
+    prov_in_review:   'professionals pending review — available after admin approval',
+    prov_try_other:   'Try a different category or expand your search',
+    // Profile
+    prof_back:        'Back',
+    prof_step_profile:'Profile',
+    prof_step_time:   'Time',
+    prof_step_confirm:'Confirm',
+    prof_step_pay:    'Payment',
+    prof_pick_date:   'Select a date and time',
+    prof_no_slots:    'No availability for this day. Please try a different date.',
+    prof_select_slot: 'Select an available time slot',
+    prof_book:        'Book now',
+    prof_at:          'at',
+    prof_reviews:     'Client reviews',
+    prof_avg:         'avg.',
+    // Confirm modal
+    modal_title:      'Review & confirm',
+    modal_provider:   'Provider',
+    modal_service:    'Service',
+    modal_date:       'Date',
+    modal_time:       'Time',
+    modal_subtotal:   'Service (1 hr)',
+    modal_fee:        'Service fee (15%)',
+    modal_total:      'Total',
+    modal_escrow:     'Your payment is protected — released only when the job is done',
+    modal_cancel:     'Cancel',
+    modal_pay:        'Confirm & pay',
+    // Tracking
+    track_confirmed:  'Booking confirmed',
+    track_escrow:     'Payment secured',
+    track_on_way:     'on the way',
+    track_eta:        'Estimated arrival',
+    track_in_progress:'Service in progress',
+    track_completed:  'Service completed',
+    track_heading:    'Your professional is on the way',
+    track_updated:    'Updated just now',
+    track_min_eta:    'min ETA',
+    btn_call:         'Call',
+    btn_chat:         'Chat',
+    btn_complete:     'Mark complete',
+    // History
+    hist_all:         'All',
+    hist_upcoming:    'Upcoming',
+    hist_completed:   'Completed',
+    hist_cancelled:   'Cancelled',
+    hist_status_comp: 'Completed',
+    hist_status_canc: 'Cancelled',
+    hist_status_upco: 'Upcoming',
+    hist_rate:        'Leave a review',
+    hist_cancel:      'Cancel booking',
+    hist_view_prov:   'View professional\'s profile',
+    hist_empty:       'No bookings yet',
+    hist_empty_sub:   'Find a professional and schedule your first service',
+    hist_no_results:  'No results for this filter',
+    // Rating
+    rate_question:    'How would you rate this service?',
+    rate_placeholder: 'Tell us more (optional)...',
+    rate_submit:      'Publish review',
+    // Days / Months
+    days:  ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+    months:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+    // Toasts
+    toast_booking_created:  'Request sent — waiting for the professional to confirm',
+    toast_booking_cancelled:'Booking cancelled. Refund will be processed in 3-5 business days.',
+    toast_rating_sent:      'Thank you for your review!',
+    toast_service_done:     'Service complete! Payment will be released to the professional shortly.',
+    toast_call:             'Calling ',
+    toast_chat:             'Chat started',
+    // Admin
+    adm_title:        'Dashboard',
+    adm_active_prov:  'Active providers',
+    adm_total_books:  'Total bookings',
+    adm_in_review:    'Pending review',
+    adm_rating:       'Avg. rating',
+    adm_approve:      'Approve',
+    adm_reject:       'Reject',
+    adm_suspend:      'Suspend',
+    adm_reactivate:   'Reactivate',
+    adm_view:         'View details',
+    adm_new_badge:    'NEW',
+    adm_tab_all:      'All',
+    adm_tab_review:   'Pending review',
+    adm_tab_suspended:'Suspended',
+    adm_tab_active:   'Active',
+    adm_cat_new:      'New category',
+    adm_cat_save:     'Save category',
+    adm_cat_cancel:   'Cancel',
+    adm_cat_name:     'Display name',
+    adm_cat_id:       'Internal ID (no spaces)',
+    adm_cat_icon:     'Icon (emoji)',
+    adm_cat_desc:     'Short description',
+    adm_cat_active:   'Active',
+    adm_cat_total:    'Total',
+    // Provider app
+    prov_online:      'Available now',
+    prov_offline:     'Currently unavailable',
+    prov_toggle_on:   'You\'re live — clients can now find you',
+    prov_toggle_off:  'You\'re offline — no new requests will come in',
+    prov_requests:    'New requests',
+    prov_no_requests: 'No new requests at the moment',
+    prov_accept:      'Accept job',
+    prov_reject_req:  'Decline request',
+    prov_earnings:    'Earnings',
+    prov_today:       'Today',
+    prov_this_month:  'This month',
+    prov_tab_home:    'Home',
+    prov_tab_agenda:  'My schedule',
+    prov_tab_earnings:'Earnings',
+    prov_tab_profile: 'Profile',
+    // Registration
+    reg_country:      'Which country do you work in?',
+    reg_type:         'How would you like to sign up?',
+    reg_basic:        'Tell us about you',
+    reg_phone:        'Verify your number',
+    reg_services:     'What services do you provide?',
+    reg_schedule:     'Set your availability',
+    reg_docs:         'Identity verification',
+    reg_location:     'What is your service area?',
+    reg_confirm:      'Your request has been submitted!',
+    btn_continue:     'Continue',
+    btn_back:         'Back',
+    btn_send_otp:     'Send verification code',
+    btn_create:       'Create my account',
+  }
+};
+
+var _lang = localStorage.getItem('chambers-online_lang') || 'es';
+
+function T(key) {
+  return (STRINGS[_lang] && STRINGS[_lang][key]) || (STRINGS['es'] && STRINGS['es'][key]) || key;
+}
+
+function setLang(lang) {
+  _lang = lang;
+  localStorage.setItem('chambers-online_lang', lang);
+  // Re-render static elements with data-i18n attributes
+  document.querySelectorAll('[data-i18n]').forEach(function(el) {
+    var key = el.getAttribute('data-i18n');
+    var attr = el.getAttribute('data-i18n-attr');
+    if (attr) el.setAttribute(attr, T(key));
+    else el.textContent = T(key);
+  });
+  // Update lang toggle buttons
+  document.querySelectorAll('.lang-btn').forEach(function(btn) {
+    btn.classList.toggle('active', btn.dataset.lang === _lang);
+  });
+  // Trigger full re-render if the page has a render function
+  if (typeof renderHome === 'function')     renderHome();
+  if (typeof filterProviders === 'function') filterProviders('');
+  if (typeof buildCategoryChips === 'function') buildCategoryChips();
+  if (typeof renderProviders === 'function' && typeof getProviders === 'function')
+    renderProviders(getProviders().map(mapProvider));
+}
+
+function getLang() { return _lang; }
+// End i18n
+
+
+
+
+// ── STATE
+var currentProvFilter = 'all';
+var openDisputeForms = new Set();
+var editingCatId = null;
+var editingAdId = null;
+var selectedAdPlan = 'basic';
+
+// ── PROVIDERS ─────────────────────────────────────────────────
+function getProviders() { return DB.providers.getAll(); }
+
+function mapProvider(p) {
+  return {
+    id:       p.id,
+    name:     p.name,
+    icon:     p.icon || '👤',
+    type:     p.type === 'company' ? 'Empresa' : 'Independiente',
+    rating:   p.rating || 0,
+    bookings: p.bookings || 0,
+    gmv:      p.gmv || '$0',
+    status:   p.status,
+    risk:     p.riskScore || 0,
+    country:  (p.country || 'mx').toUpperCase(),
+    email:    p.email || '',
+    services: (p.services || []).join(', '),
+    city:     p.city || '',
+    createdAt: p.createdAt || '',
+  };
+}
+
+function showPage(name, navEl) {
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+  var pg = document.getElementById('page-'+name);
+  if (pg) pg.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
+  if (navEl) navEl.classList.add('active');
+  else document.querySelectorAll('.nav-item').forEach(function(n){
+    if (n.textContent.toLowerCase().includes(name.split('-')[0])) n.classList.add('active');
+  });
+  var titles = {
+    dashboard:  T('adm_title'),  providers: T('nav_providers'),
+    bookings:   T('nav_bookings'), disputes: T('nav_disputes'),
+    payments:   T('nav_payments'), analytics: T('nav_analytics'),
+    settings:   T('nav_settings'), categories: T('nav_categories'),
+    ads: 'Anuncios'
+  };
+  var titleEl = document.getElementById('page-title');
+  if (titleEl) titleEl.textContent = titles[name] || name;
+  refreshNavCounts();
+  if (name === 'bookings')   { renderBookings(); }
+  if (name === 'payments')   { renderPayments(); }
+  if (name === 'providers')  { renderProviders(getProviders().map(mapProvider)); filterProviders(currentProvFilter, null); }
+  if (name === 'disputes')   { renderDisputes(DISPUTES); }
+  if (name === 'categories') { renderCatsList(); }
+  if (name === 'ads')        { renderAdsList(); }
+  if (name === 'dashboard')  { buildBarChart(); refreshDashboardKPIs(); }
+  if (name === 'analytics')  { buildFunnel(); }
+}
+
+function refreshNavCounts() {
+  var counts = DB.providers.counts();
+  var badge = document.getElementById('badge-review');
+  if (badge) {
+    badge.textContent = counts.review;
+    badge.style.display = counts.review > 0 ? '' : 'none';
+  }
+}
+
+function refreshDashboardKPIs() {
+  var pvCounts = DB.providers.counts();
+  var bkCounts = DB.bookings.counts();
+  var el;
+  el = document.getElementById('kpi-active-providers'); if(el) el.textContent = pvCounts.active;
+  el = document.getElementById('kpi-review-delta');     if(el) el.textContent = pvCounts.review > 0 ? pvCounts.review + ' pendiente' + (pvCounts.review > 1 ? 's' : '') + ' de revisión' : 'todos verificados ✓';
+  el = document.getElementById('kpi-bookings');         if(el) el.textContent = bkCounts.total || 0;
+  el = document.getElementById('kpi-bookings-delta');   if(el) el.textContent = (bkCounts.completed || 0) + ' completadas';
+  el = document.getElementById('kpi-review');           if(el) el.textContent = pvCounts.review;
+  el = document.getElementById('kpi-review-sub');       if(el) el.textContent = pvCounts.review > 0 ? 'requieren atención' : 'sin pendientes';
+  var all = DB.providers.getAll().filter(function(p){ return p.status === 'active' && p.rating > 0; });
+  var avgRating = all.length ? (all.reduce(function(s,p){ return s+p.rating; }, 0) / all.length).toFixed(2) : '—';
+  el = document.getElementById('kpi-rating'); if(el) el.textContent = avgRating;
+}
+
+function renderProviders(list) {
+  var tbody = document.getElementById('providers-tbody');
+  if (!list || !list.length) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--muted)">Sin proveedores registrados</td></tr>';
+    return;
+  }
+  tbody.innerHTML = list.map(function(p){
+    var stars = '★'.repeat(Math.min(5, Math.floor(p.rating || 0)));
+    var statusLabel = p.status === 'active' ? 'Activo' : p.status === 'review' ? 'En revisión' : p.status === 'rejected' ? 'Rechazado' : 'Suspendido';
+    var statusClass = p.status === 'active' ? 'green' : p.status === 'review' ? 'amber' : 'red';
+    var riskClass   = p.risk < 30 ? 'green' : p.risk < 60 ? 'amber' : 'red';
+    var newBadge = p.status === 'review' ? '<span class="badge blue" style="margin-left:4px;font-size:10px">' + T('adm_new_badge') + '</span>' : '';
+    var actions = (p.status === 'active'    ? '<button class="btn-sm danger"   data-prov-action="suspend" data-prov-id="'+p.id+'">' + T('adm_suspend') + '</button>' : '') +
+                  (p.status === 'review'    ? '<button class="btn-sm success"  data-prov-action="approve" data-prov-id="'+p.id+'">' + T('adm_approve') + '</button><button class="btn-sm danger" data-prov-action="reject" data-prov-id="'+p.id+'">' + T('adm_reject') + '</button>' : '') +
+                  (p.status === 'suspended' ? '<button class="btn-sm success"  data-prov-action="approve" data-prov-id="'+p.id+'">' + T('adm_reactivate') + '</button>' : '') +
+                  '<button class="btn-sm" data-prov-action="view" data-prov-id="'+p.id+'">' + T('adm_view') + '</button>';
+    return '<tr>' +
+      '<td><div class="provider-cell"><div class="prov-avatar">' + p.icon + '</div><div><div class="prov-name">' + p.name + '</div><div class="prov-type">' + p.type + ' · ' + p.country + ' · ' + p.city + '</div></div></div></td>' +
+      '<td>' + p.type + '</td>' +
+      '<td><span style="color:var(--amber)">' + stars + '</span> ' + (p.rating||0).toFixed(1) + '</td>' +
+      '<td class="cell-mono">' + (p.bookings||0) + '</td>' +
+      '<td class="cell-mono">' + (p.gmv||'$0') + '</td>' +
+      '<td><span class="badge ' + statusClass + '">' + statusLabel + '</span>' + newBadge + '</td>' +
+      '<td><span class="badge ' + riskClass + '" style="font-family:var(--mono)">' + p.risk + '</span></td>' +
+      '<td><div class="actions-cell">' + actions + '</div></td>' +
+    '</tr>';
+  }).join('');
+}
+
+// Delegated click for provider table actions
+document.addEventListener('click', function(e) {
+  var btn = e.target.closest('[data-prov-action]');
+  if (!btn) return;
+  var action = btn.dataset.provAction;
+  var id     = btn.dataset.provId;
+  if (action === 'approve') approveProvider(id);
+  if (action === 'reject')  rejectProvider(id);
+  if (action === 'suspend') suspendProvider(id);
+  if (action === 'view')    viewProvider(id);
+});
+
+function suspendProvider(id) {
+  DB.providers.updateStatus(id, 'suspended');
+  renderProviders(getProviders().map(mapProvider));
+  refreshNavCounts();
+  showToast('Proveedor suspendido', 'error');
+}
+function approveProvider(id) {
+  DB.providers.updateStatus(id, 'active');
+  renderProviders(getProviders().map(mapProvider));
+  filterProviders(currentProvFilter, null);
+  refreshNavCounts();
+  showToast('✓ Proveedor aprobado y activado', 'success');
+}
+function rejectProvider(id) {
+  DB.providers.updateStatus(id, 'rejected');
+  renderProviders(getProviders().map(mapProvider));
+  refreshNavCounts();
+  showToast('Proveedor rechazado', 'error');
+}
+function viewProvider(id) {
+  var p = DB.providers.getById(id);
+  if (!p) return;
+  showToast(p.name + ' · ' + p.email + ' · ' + p.phone);
+}
+
+function filterProviders(filter, el) {
+  currentProvFilter = filter;
+  document.querySelectorAll('.mod-tab').forEach(function(t){ t.classList.remove('active'); });
+  if (el) el.classList.add('active');
+  var all = getProviders().map(mapProvider);
+  var filtered = filter === 'all' ? all :
+    filter === 'review'    ? all.filter(function(p){ return p.status === 'review'; }) :
+    filter === 'suspended' ? all.filter(function(p){ return p.status === 'suspended'; }) :
+    all.filter(function(p){ return p.status === 'active'; });
+  renderProviders(filtered);
+  var counts = DB.providers.counts();
+  var tabMap = {
+    'tab-all':       T('adm_tab_all')       + ' (' + counts.total + ')',
+    'tab-review':    T('adm_tab_review')    + ' (' + counts.review + ')',
+    'tab-suspended': T('adm_tab_suspended') + ' (' + counts.suspended + ')',
+    'tab-active':    T('adm_tab_active')    + ' (' + counts.active + ')',
+  };
+  Object.keys(tabMap).forEach(function(tid) {
+    var el = document.getElementById(tid);
+    if (el) el.textContent = tabMap[tid];
+  });
+  var badge = document.getElementById('badge-review');
+  if (badge) { badge.textContent = counts.review; badge.style.display = counts.review > 0 ? '' : 'none'; }
+}
+
+function filterProvidersSearch(q) {
+  var all = getProviders().map(mapProvider);
+  var filtered = q ? all.filter(function(p){
+    return p.name.toLowerCase().includes(q.toLowerCase()) ||
+           (p.city||'').toLowerCase().includes(q.toLowerCase()) ||
+           (p.services||'').toLowerCase().includes(q.toLowerCase());
+  }) : all;
+  renderProviders(filtered);
+}
+
+// ── DISPUTES ──────────────────────────────────────────────────
+var DISPUTES = [
+  { id:'BK-4821', client:'Ana G.',   provider:'Servicios Norte', amount:1800, reason:'No se presentó',      status:'urgent',   clientDesc:'El proveedor no llegó y no contestó.',         providerDesc:'Hubo un problema de agenda.',           clientPct:100 },
+  { id:'BK-4790', client:'Luis M.',  provider:'Herrero Pro',     amount:2400, reason:'Calidad del trabajo', status:'review',   clientDesc:'La soldadura se desprendió a los 2 días.',     providerDesc:'El material fue del cliente.',           clientPct:50  },
+  { id:'BK-4755', client:'Marta R.', provider:'Juan Martínez',   amount:900,  reason:'Precio incorrecto',   status:'review',   clientDesc:'Cobró $150 más de lo acordado.',               providerDesc:'Hubo trabajo adicional.',                clientPct:60  },
+  { id:'BK-4720', client:'Diego F.', provider:'Plomería Express',amount:420,  reason:'Trabajo incompleto',  status:'review',   clientDesc:'Solo reparó una fuga pero dejó otra.',         providerDesc:'No estaba en el servicio original.',    clientPct:40  },
+  { id:'BK-4698', client:'Sara V.',  provider:'EléctricosMX',    amount:650,  reason:'Daños materiales',    status:'resolved', clientDesc:'Quemó un electrodoméstico.',                   providerDesc:'Ya se resolvió con reembolso.',         clientPct:100 },
+];
+
+function renderDisputes(list) {
+  var tbody = document.getElementById('disputes-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  list.forEach(function(d) {
+    var sc = d.status === 'urgent' ? 'red' : d.status === 'resolved' ? 'green' : 'amber';
+    var sl = d.status === 'urgent' ? 'Urgente' : d.status === 'resolved' ? 'Resuelto' : 'En revisión';
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td class="cell-mono">' + d.id + '</td>' +
+      '<td>' + d.client + '</td>' +
+      '<td>' + d.provider + '</td>' +
+      '<td class="cell-mono">$' + d.amount + '</td>' +
+      '<td>' + d.reason + '</td>' +
+      '<td><span class="badge ' + sc + '">' + sl + '</span></td>' +
+      '<td><div class="actions-cell"></div></td>';
+    var actions = tr.querySelector('.actions-cell');
+    if (d.status !== 'resolved') {
+      var btnR = document.createElement('button');
+      btnR.className = 'btn-sm success';
+      btnR.textContent = 'Resolver';
+      btnR.dataset.disputeAction = 'resolve';
+      btnR.dataset.disputeId = d.id;
+      actions.appendChild(btnR);
+    }
+    var btnV = document.createElement('button');
+    btnV.className = 'btn-sm';
+    btnV.textContent = 'Ver detalle';
+    btnV.dataset.disputeAction = 'view';
+    btnV.dataset.disputeId = d.id;
+    actions.appendChild(btnV);
+    tbody.appendChild(tr);
+  });
+  if (!tbody._disputeDel) {
+    tbody._disputeDel = true;
+    tbody.addEventListener('click', function(e) {
+      var btn = e.target.closest('[data-dispute-action]');
+      if (!btn) return;
+      var action = btn.dataset.disputeAction;
+      var id     = btn.dataset.disputeId;
+      if (action === 'resolve') resolveDispute(id);
+      if (action === 'view')    viewDispute(id);
+    });
+  }
+}
+function filterDisputes(filter, el) {
+  document.querySelectorAll('.mod-tab').forEach(function(t){ t.classList.remove('active'); });
+  if (el) el.classList.add('active');
+  var filtered = filter === 'all' ? DISPUTES : DISPUTES.filter(function(d){ return d.status === filter; });
+  renderDisputes(filtered);
+}
+function resolveDispute(id) {
+  var d = DISPUTES.find(function(x){ return x.id === id; });
+  if (d) d.status = 'resolved';
+  renderDisputes(DISPUTES);
+  showToast('✓ Disputa resuelta', 'success');
+}
+function viewDispute(id) {
+  var d = DISPUTES.find(function(x){ return x.id === id; });
+  if (!d) return;
+  showToast(d.id + ': ' + d.reason + ' — Cliente: ' + d.clientDesc.slice(0,40));
+}
+
+// ── CATEGORIES ─────────────────────────────────────────────────
+var DEFAULT_CATS = [
+  {id:'herreria',    name:'Herrería',              icon:'⚒️', desc:'Rejas, puertas y estructuras metálicas',   active:true},
+  {id:'soldadura',   name:'Soldadura',             icon:'🔩', desc:'Soldadura estructural y ornamental',       active:true},
+  {id:'plomeria',    name:'Plomería',              icon:'🔧', desc:'Instalaciones y reparaciones de agua',     active:true},
+  {id:'carpinteria', name:'Carpintería',           icon:'🪚', desc:'Muebles, puertas y acabados en madera',    active:true},
+  {id:'electricidad',name:'Electricidad',          icon:'⚡', desc:'Instalaciones eléctricas y tableros',      active:true},
+  {id:'limpieza',    name:'Limpieza especializada',icon:'🧹', desc:'Limpieza profunda y post-construcción',    active:true},
+  {id:'pintura',     name:'Pintura',               icon:'🖌️', desc:'Pintura interior, exterior y decorativa',  active:true},
+  {id:'albanileria', name:'Albañilería',           icon:'🧱', desc:'Construcción, remodelación y acabados',    active:true},
+  {id:'llantas',     name:'Llantas',               icon:'🛞', desc:'Servicio a domicilio de llantas',          active:true},
+  {id:'mudanzas',    name:'Mudanzas',              icon:'📦', desc:'Carga, descarga y transporte',             active:true},
+  {id:'cerrajeria',  name:'Cerrajería',            icon:'🔑', desc:'Apertura, cambio de cerraduras y copias',  active:true},
+  {id:'jardineria',  name:'Jardinería',            icon:'🌿', desc:'Poda, diseño y mantenimiento',             active:true},
+  {id:'fumigacion',  name:'Fumigación',            icon:'🪲', desc:'Control de plagas residencial y comercial',active:true},
+  {id:'ac',          name:'Aire acondicionado',    icon:'❄️', desc:'Instalación, mantenimiento y reparación',  active:true},
+  {id:'tech',        name:'Electrónica',           icon:'🔌', desc:'Reparación de equipos electrónicos',      active:true},
+];
+
+function getCats() {
+  try {
+    var s = JSON.parse(localStorage.getItem('chambers-online_categories') || 'null');
+    return s && s.length ? s : DEFAULT_CATS;
+  } catch(e) { return DEFAULT_CATS; }
+}
+function saveCats(cats) {
+  localStorage.setItem('chambers-online_categories', JSON.stringify(cats));
+  // Notify ALL tabs including this one
+  window.dispatchEvent(new CustomEvent('db:change', { detail: { key: 'chambers-online_categories' } }));
+}
+
+function renderCatsList(filter) {
+  filter = filter || '';
+  var cats = getCats();
+  var norm = function(s){ return (s||'').toLowerCase(); };
+  var filtered = filter ? cats.filter(function(c){ return norm(c.name).includes(norm(filter)) || norm(c.id).includes(norm(filter)); }) : cats;
+  var el = document.getElementById('cats-list');
+  if (!el) return;
+  el.innerHTML = filtered.length ? filtered.map(function(c){
+    return '<div class="cat-row" id="catrow-' + c.id + '">' +
+      '<div class="cat-emoji">' + (c.icon||'📌') + '</div>' +
+      '<div class="cat-info"><div class="cat-name">' + c.name + (c.active===false?' <span class="badge gray" style="font-size:10px">Inactiva</span>':'') + '</div><div class="cat-id">' + c.id + ' · ' + (c.desc||'') + '</div></div>' +
+      '<div class="cat-actions">' +
+        '<button class="btn-sm" data-cat-action="edit" data-cat-id="' + c.id + '">Editar</button>' +
+        '<button class="btn-sm ' + (c.active===false?'success':'danger') + '" data-cat-action="toggle" data-cat-id="' + c.id + '">' + (c.active===false?'Activar':'Desactivar') + '</button>' +
+      '</div></div>';
+  }).join('') : '<div style="padding:24px;text-align:center;color:var(--muted);font-size:13px">Sin resultados</div>';
+  // Stats
+  var active = cats.filter(function(c){ return c.active !== false; }).length;
+  var sg = document.getElementById('cat-stats');
+  if (sg) sg.innerHTML = [
+    ['<span data-i18n="adm_cat_active">Activas</span>', active, 'var(--green)'],
+    ['<span data-i18n="adm_cat_total">Total</span>', cats.length, 'var(--text)'],
+  ].map(function(s){ return '<div style="background:var(--surface2);border-radius:8px;padding:12px;text-align:center"><div style="font-size:22px;font-weight:700;color:' + s[2] + '">' + s[1] + '</div><div style="font-size:11px;color:var(--muted);margin-top:3px">' + s[0] + '</div></div>'; }).join('');
+}
+
+// Delegated click for categories list
+document.addEventListener('click', function(e) {
+  var btn = e.target.closest('[data-cat-action]');
+  if (!btn) return;
+  var action = btn.dataset.catAction;
+  var id     = btn.dataset.catId;
+  if (action === 'edit')   editCat(id);
+  if (action === 'toggle') toggleCat(id);
+});
+
+function filterCats(q) { renderCatsList(q); }
+
+function sanitizeCatId(input) {
+  input.value = input.value.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9_]/g,'_').replace(/__+/g,'_');
+}
+
+function saveCategory() {
+  var name = (document.getElementById('cat-name').value||'').trim();
+  var id   = (document.getElementById('cat-id').value||'').trim();
+  var icon = (document.getElementById('cat-icon').value||'').trim() || '📌';
+  var desc = (document.getElementById('cat-desc').value||'').trim();
+  if (!name) { showToast('El nombre es obligatorio', 'error'); return; }
+  if (!id)   { showToast('El ID es obligatorio', 'error'); return; }
+  var cats = getCats();
+  if (editingCatId) {
+    var idx = cats.findIndex(function(c){ return c.id === editingCatId; });
+    if (idx >= 0) cats[idx] = Object.assign({}, cats[idx], {name:name, icon:icon, desc:desc});
+    showToast('✓ Categoría actualizada', 'success');
+    cancelEditCat();
+  } else {
+    if (cats.some(function(c){ return c.id === id; })) { showToast('Ya existe una categoría con ese ID', 'error'); return; }
+    cats.push({id:id, name:name, icon:icon, desc:desc, active:true});
+    showToast('✓ Categoría creada: ' + name, 'success');
+  }
+  saveCats(cats);
+  renderCatsList();
+  clearCatForm();
+}
+function editCat(id) {
+  var cat = getCats().find(function(c){ return c.id === id; });
+  if (!cat) return;
+  editingCatId = id;
+  document.getElementById('cat-name').value = cat.name || '';
+  document.getElementById('cat-id').value   = cat.id   || '';
+  document.getElementById('cat-icon').value = cat.icon || '';
+  document.getElementById('cat-desc').value = cat.desc || '';
+  document.getElementById('cat-form-title').textContent = 'Editar: ' + cat.name;
+  document.getElementById('cat-cancel-btn').style.display = '';
+  var idEl = document.getElementById('cat-id'); if(idEl) idEl.disabled = true;
+}
+function cancelEditCat() {
+  editingCatId = null;
+  clearCatForm();
+  document.getElementById('cat-form-title').textContent = 'Nueva categoría';
+  document.getElementById('cat-cancel-btn').style.display = 'none';
+  var idEl = document.getElementById('cat-id'); if(idEl) idEl.disabled = false;
+}
+function clearCatForm() {
+  ['cat-name','cat-id','cat-icon','cat-desc'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+}
+function toggleCat(id) {
+  var cats = getCats();
+  var idx  = cats.findIndex(function(c){ return c.id === id; });
+  if (idx < 0) return;
+  cats[idx].active = cats[idx].active === false ? true : false;
+  saveCats(cats);
+  renderCatsList();
+  showToast(cats[idx].active ? '✓ Categoría activada' : 'Categoría desactivada');
+}
+
+// ── ADS ────────────────────────────────────────────────────────
+function getAdsList() {
+  try { return JSON.parse(localStorage.getItem('chambers-online_ads') || '[]'); } catch(e) { return []; }
+}
+function saveAdsList(ads) {
+  localStorage.setItem('chambers-online_ads', JSON.stringify(ads));
+  // Notify ALL tabs including this one
+  window.dispatchEvent(new CustomEvent('db:change', { detail: { key: 'chambers-online_ads' } }));
+}
+
+function renderAdsList(filter) {
+  filter = filter || 'all';
+  var ads = getAdsList();
+  var now = new Date().toISOString().slice(0,10);
+  var filtered = ads.filter(function(a){
+    if (filter === 'active')  return a.status === 'active' && (!a.endDate || a.endDate >= now);
+    if (filter === 'paused')  return a.status === 'paused';
+    if (filter === 'expired') return a.endDate && a.endDate < now;
+    return true;
+  });
+
+  // Populate provider dropdown
+  var provSel = document.getElementById('ad-provider');
+  if (provSel && provSel.options.length <= 1) {
+    DB.providers.getAll().filter(function(p){ return p.status === 'active'; }).forEach(function(p){
+      var opt = document.createElement('option');
+      opt.value = p.id; opt.textContent = p.name;
+      provSel.appendChild(opt);
+    });
+  }
+  // Populate category dropdown
+  var catSel = document.getElementById('ad-category');
+  if (catSel && catSel.options.length <= 1) {
+    getCats().forEach(function(c){
+      var opt = document.createElement('option');
+      opt.value = c.name; opt.textContent = c.name;
+      catSel.appendChild(opt);
+    });
+  }
+
+  var tbody = document.getElementById('ads-list-body');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+
+  if (!filtered.length) {
+    var empty = document.createElement('div');
+    empty.style.cssText = 'padding:32px;text-align:center;color:var(--muted);font-size:13px';
+    empty.textContent = 'No hay anuncios' + (filter !== 'all' ? ' en este estado' : '');
+    tbody.appendChild(empty);
+  } else {
+    filtered.forEach(function(a){
+      var isExp = a.endDate && a.endDate < now;
+      var planClass   = 'pill-'+(a.plan||'basic');
+      var statusColor = isExp ? 'var(--muted)' : a.status==='active' ? 'var(--green)' : 'var(--amber)';
+      var ctr = a.impressions > 0 ? ((a.clicks||0)/a.impressions*100).toFixed(1)+'%' : '—';
+      var row = document.createElement('div');
+      row.className = 'ad-row';
+      row.innerHTML =
+        '<div class="ad-icon-sm">'+(a.icon||'📢')+'</div>' +
+        '<div class="ad-info">' +
+          '<div class="ad-info-name">'+(a.name||'Sin nombre')+'</div>' +
+          '<div class="ad-info-sub">'+(a.tagline||'')+(a.endDate?' · Hasta '+a.endDate:'')+'</div>' +
+        '</div>' +
+        '<div class="ad-stat"><strong>'+(a.impressions||0)+'</strong>impresiones</div>' +
+        '<div class="ad-stat"><strong>'+(a.clicks||0)+'</strong>clics</div>' +
+        '<div class="ad-stat"><strong>'+ctr+'</strong>CTR</div>' +
+        '<span class="ad-plan-pill '+planClass+'">'+(a.plan||'basic').toUpperCase()+'</span>' +
+        '<span style="font-size:11px;font-weight:600;color:'+statusColor+'">'+(isExp?'Expirado':a.status==='active'?'Activo':'Pausado')+'</span>' +
+        '<div style="display:flex;gap:5px"></div>';
+      var actions = row.querySelector('div:last-child');
+      ['edit','toggle','delete'].forEach(function(act){
+        var btn = document.createElement('button');
+        btn.dataset.adaction = act;
+        btn.dataset.adid     = a.id;
+        btn.className = 'btn-sm' + (act==='delete'?' danger': act==='toggle'&&a.status!=='active'?' success':'');
+        btn.textContent = act==='edit'?'Editar':act==='delete'?'Eliminar':a.status==='active'?'Pausar':'Activar';
+        actions.appendChild(btn);
+      });
+      tbody.appendChild(row);
+    });
+  }
+
+  // Delegated click
+  if (!tbody._adDelegated) {
+    tbody._adDelegated = true;
+    tbody.addEventListener('click', function(e){
+      var btn = e.target.closest('[data-adaction]');
+      if (!btn) return;
+      var act = btn.dataset.adaction, id = btn.dataset.adid;
+      if (act==='edit')   editAd(id);
+      if (act==='toggle') toggleAdStatus(id);
+      if (act==='delete') deleteAd(id);
+    });
+  }
+
+  // Stats
+  var sg = document.getElementById('ads-stats-grid');
+  if (sg) {
+    var active = ads.filter(function(a){ return a.status==='active'; }).length;
+    var totalI = ads.reduce(function(s,a){ return s+(a.impressions||0); }, 0);
+    var totalC = ads.reduce(function(s,a){ return s+(a.clicks||0); }, 0);
+    var rev    = ads.reduce(function(s,a){ return s+(a.status==='active'?{premium:799,standard:499,basic:299}[a.plan||'basic']||299:0); }, 0);
+    sg.innerHTML = [
+      ['Anuncios activos', active, 'var(--green)'],
+      ['Total impresiones', totalI.toLocaleString(), 'var(--blue)'],
+      ['Total clics', totalC, 'var(--accent)'],
+      ['Revenue mensual', '$'+rev.toLocaleString(), 'var(--amber)'],
+    ].map(function(s){ return '<div style="background:var(--surface);border:1.5px solid var(--border2);border-radius:12px;padding:14px;text-align:center"><div style="font-size:20px;font-weight:700;color:'+s[2]+'">'+s[1]+'</div><div style="font-size:11px;color:var(--muted);margin-top:3px">'+s[0]+'</div></div>'; }).join('');
+  }
+  updateAdPreview();
+}
+
+function filterAdsList(filter, el) {
+  document.querySelectorAll('#ads-filter-tabs .mod-tab').forEach(function(t){ t.classList.remove('active'); });
+  if (el) el.classList.add('active');
+  renderAdsList(filter);
+}
+function selAdPlan(plan, el) {
+  selectedAdPlan = plan;
+  document.querySelectorAll('.plan-btn').forEach(function(b){ b.classList.remove('active'); });
+  if (el) el.classList.add('active');
+  updateAdPreview();
+}
+function onAdProviderChange(sel) {
+  if (!sel.value) return;
+  var prov = DB.providers.getById(sel.value);
+  if (!prov) return;
+  var n=document.getElementById('ad-name'), i=document.getElementById('ad-icon'), t=document.getElementById('ad-tagline'), c=document.getElementById('ad-category');
+  if(n&&!n.value) n.value=prov.name;
+  if(i&&!i.value) i.value=prov.icon||'';
+  if(t&&!t.value) t.value=(prov.bio||'').slice(0,60)||((prov.exp||1)+' años de experiencia');
+  updateAdPreview();
+}
+function updateAdPreview() {
+  var preview = document.getElementById('ad-preview');
+  if (!preview) return;
+
+  var name       = (document.getElementById('ad-name')||{}).value      || 'Nombre del anuncio';
+  var tagline    = (document.getElementById('ad-tagline')||{}).value   || 'Descripción breve';
+  var promoText  = (document.getElementById('ad-promo-text')||{}).value|| '';
+  var promoBadge = (document.getElementById('ad-promo-badge')||{}).value|| '';
+  var badgeColor = (document.getElementById('ad-promo-badge-color')||{}).value || 'accent';
+  var imageUrl   = (document.getElementById('ad-image-url')||{}).value  || '';
+  var logoUrl    = (document.getElementById('ad-logo-url')||{}).value   || '';
+  var ctaLabel   = (document.getElementById('ad-cta-label')||{}).value  || 'Ver oferta';
+  var icon       = (document.getElementById('ad-icon')||{}).value       || '📢';
+  var category   = (document.getElementById('ad-category')||{}).value   || 'Categoría';
+
+  var badgeBg = badgeColor === 'amber' ? 'var(--amber)' : badgeColor === 'red' ? 'var(--red)' : 'var(--accent)';
+  var badgeFg = (badgeColor === 'amber' || badgeColor === 'accent') ? '#000' : '#fff';
+
+  preview.innerHTML = '';
+
+  // ── Column preview label ──
+  var lbl = document.createElement('div');
+  lbl.style.cssText = 'font-size:10px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em;font-weight:600';
+  lbl.textContent = 'Vista previa — Columna lateral';
+  preview.appendChild(lbl);
+
+  // ── Card shell ──
+  var card = document.createElement('div');
+  card.style.cssText = 'background:var(--surface2);border:1.5px solid var(--border2);border-radius:14px;overflow:hidden;max-width:190px';
+
+  // Hero area (DOM — avoids onerror quote collision)
+  var heroDiv = document.createElement('div');
+  heroDiv.style.cssText = 'height:90px;position:relative;overflow:hidden;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-size:28px';
+
+  if (imageUrl) {
+    var img = document.createElement('img');
+    img.src = imageUrl;
+    img.style.cssText = 'width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0';
+    img.onerror = function() {
+      img.style.display = 'none';
+      heroDiv.style.background = 'var(--surface3)';
+    };
+    heroDiv.appendChild(img);
+  } else {
+    heroDiv.textContent = icon;
+  }
+
+  // Logo
+  if (logoUrl) {
+    var lw = document.createElement('div');
+    lw.style.cssText = 'position:absolute;bottom:5px;left:5px;width:26px;height:26px;border-radius:6px;background:var(--surface);border:1px solid var(--border2);overflow:hidden;z-index:2';
+    var li = document.createElement('img');
+    li.src = logoUrl;
+    li.style.cssText = 'width:100%;height:100%;object-fit:cover';
+    li.onerror = function() { lw.style.display = 'none'; };
+    lw.appendChild(li);
+    heroDiv.appendChild(lw);
+  }
+
+  // Promo badge
+  if (promoBadge) {
+    var pb = document.createElement('div');
+    pb.style.cssText = 'position:absolute;top:5px;right:5px;background:' + badgeBg + ';color:' + badgeFg + ';font-size:9px;font-weight:700;padding:2px 6px;border-radius:20px;z-index:2';
+    pb.textContent = promoBadge;
+    heroDiv.appendChild(pb);
+  }
+
+  // Sponsored label
+  var sp = document.createElement('div');
+  sp.style.cssText = 'position:absolute;top:6px;left:6px;font-size:9px;font-weight:700;background:rgba(0,0,0,.55);color:rgba(255,255,255,.7);padding:1px 5px;border-radius:3px;z-index:2';
+  sp.textContent = 'Patrocinado';
+  heroDiv.appendChild(sp);
+  card.appendChild(heroDiv);
+
+  // Body
+  var body = document.createElement('div');
+  body.style.cssText = 'padding:10px';
+  body.innerHTML =
+    '<div style="font-size:9px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.07em">' + category + '</div>' +
+    '<div style="font-size:12px;font-weight:700;color:var(--text);margin:2px 0 3px">' + name + '</div>' +
+    (promoText ? '<div style="font-size:10px;font-weight:600;color:var(--amber);margin-bottom:4px">&#128293; ' + promoText + '</div>' : '') +
+    '<div style="font-size:10px;color:var(--muted);margin-bottom:8px;line-height:1.4">' + tagline + '</div>' +
+    '<div style="width:100%;padding:6px;border-radius:6px;background:var(--accent);color:#000;font-size:10px;font-weight:700;text-align:center;font-family:var(--font-head)">' + ctaLabel + '</div>';
+  card.appendChild(body);
+  preview.appendChild(card);
+
+  // ── Leaderboard preview (Premium only) ──
+  if (selectedAdPlan === 'premium') {
+    var lbl2 = document.createElement('div');
+    lbl2.style.cssText = 'font-size:10px;color:var(--muted);margin:12px 0 6px;text-transform:uppercase;letter-spacing:.05em;font-weight:600';
+    lbl2.textContent = 'Leaderboard (Plan Premium)';
+    preview.appendChild(lbl2);
+
+    var lbCard = document.createElement('div');
+    lbCard.style.cssText = 'background:var(--surface2);border:1.5px solid var(--border2);border-radius:12px;overflow:hidden';
+
+    var lbImg = document.createElement('div');
+    lbImg.style.cssText = 'height:60px;position:relative;overflow:hidden;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-size:28px';
+    if (imageUrl) {
+      var img2 = document.createElement('img');
+      img2.src = imageUrl;
+      img2.style.cssText = 'width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0';
+      img2.onerror = function() { img2.style.display = 'none'; };
+      lbImg.appendChild(img2);
+    } else {
+      lbImg.textContent = icon;
+    }
+    lbCard.appendChild(lbImg);
+
+    var lbInner = document.createElement('div');
+    lbInner.style.cssText = 'padding:8px 10px;display:flex;align-items:center;gap:8px';
+    lbInner.innerHTML =
+      '<div style="width:30px;height:30px;border-radius:7px;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">' +
+        (logoUrl ? '<img src="' + logoUrl + '" style="width:100%;height:100%;object-fit:cover;border-radius:6px">' : icon) +
+      '</div>' +
+      '<div style="flex:1;min-width:0">' +
+        '<div style="font-size:9px;color:var(--accent);font-weight:600;text-transform:uppercase">' + category + '</div>' +
+        '<div style="font-size:11px;font-weight:700;color:var(--text)">' + name + '</div>' +
+        '<div style="font-size:10px;color:var(--amber);font-weight:600">' + (promoText || tagline) + '</div>' +
+      '</div>' +
+      '<div style="padding:5px 10px;border-radius:6px;background:var(--accent);color:#000;font-size:10px;font-weight:700;white-space:nowrap">' + ctaLabel + '</div>';
+    lbCard.appendChild(lbInner);
+    preview.appendChild(lbCard);
+  }
+}
+
+
+function saveAd() {
+  var name = (document.getElementById('ad-name').value||'').trim();
+  if (!name) { showToast('El nombre del anuncio es obligatorio', 'error'); return; }
+  var ads = getAdsList();
+  var ad = {
+    id:             editingAdId || ('ad_' + Date.now().toString(36)),
+    providerId:     (document.getElementById('ad-provider')||{}).value || null,
+    name:           name,
+    tagline:        ((document.getElementById('ad-tagline')||{}).value||'').trim(),
+    promoText:      ((document.getElementById('ad-promo-text')||{}).value||'').trim(),
+    promoBadge:     ((document.getElementById('ad-promo-badge')||{}).value||'').trim(),
+    promoBadgeColor:(document.getElementById('ad-promo-badge-color')||{}).value || 'accent',
+    imageUrl:       ((document.getElementById('ad-image-url')||{}).value||'').trim(),
+    logoUrl:        ((document.getElementById('ad-logo-url')||{}).value||'').trim(),
+    ctaLabel:       ((document.getElementById('ad-cta-label')||{}).value||'').trim() || 'Ver oferta',
+    url:            ((document.getElementById('ad-url')||{}).value||'').trim(),
+    icon:           ((document.getElementById('ad-icon')||{}).value||'').trim() || '📢',
+    category:       (document.getElementById('ad-category')||{}).value || '',
+    plan:           selectedAdPlan,
+    placement:      (document.getElementById('ad-placement')||{}).value || 'both',
+    budget:         parseFloat((document.getElementById('ad-budget')||{}).value||0),
+    startDate:      (document.getElementById('ad-start')||{}).value || new Date().toISOString().slice(0,10),
+    endDate:        (document.getElementById('ad-end')||{}).value   || '',
+    status:         'active',
+    impressions:0, clicks:0,
+    createdAt:  new Date().toISOString(),
+  };
+  if (editingAdId) {
+    var idx = ads.findIndex(function(a){ return a.id===editingAdId; });
+    if (idx>=0) { ad.impressions=ads[idx].impressions||0; ad.clicks=ads[idx].clicks||0; ads[idx]=ad; }
+    showToast('✓ Anuncio actualizado', 'success');
+    cancelEditAd();
+  } else {
+    ads.push(ad);
+    showToast('✓ Anuncio creado y activado', 'success');
+    clearAdForm();
+  }
+  saveAdsList(ads);
+  renderAdsList('all');
+}
+function editAd(id) {
+  var ad = getAdsList().find(function(a){ return a.id===id; });
+  if (!ad) return;
+  editingAdId = id;
+  document.getElementById('ad-name').value           = ad.name||'';
+  document.getElementById('ad-tagline').value        = ad.tagline||'';
+  document.getElementById('ad-promo-text').value     = ad.promoText||'';
+  document.getElementById('ad-promo-badge').value    = ad.promoBadge||'';
+  document.getElementById('ad-promo-badge-color').value = ad.promoBadgeColor||'accent';
+  document.getElementById('ad-image-url').value      = ad.imageUrl||'';
+  document.getElementById('ad-logo-url').value       = ad.logoUrl||'';
+  document.getElementById('ad-cta-label').value      = ad.ctaLabel||'';
+  document.getElementById('ad-url').value            = ad.url||'';
+  document.getElementById('ad-icon').value           = ad.icon||'';
+  document.getElementById('ad-category').value       = ad.category||'';
+  document.getElementById('ad-placement').value      = ad.placement||'both';
+  document.getElementById('ad-budget').value         = ad.budget||'';
+  document.getElementById('ad-start').value          = ad.startDate||'';
+  document.getElementById('ad-end').value            = ad.endDate||'';
+  document.getElementById('ad-provider').value       = ad.providerId||'';
+  selAdPlan(ad.plan||'basic', document.querySelector('[data-plan="'+(ad.plan||'basic')+'"]'));
+  document.getElementById('ads-form-title').textContent = 'Editar: '+ad.name;
+  document.getElementById('ad-cancel-btn').style.display='';
+  updateAdPreview();
+}
+function cancelEditAd() {
+  editingAdId = null;
+  clearAdForm();
+  document.getElementById('ads-form-title').textContent = 'Nuevo anuncio';
+  document.getElementById('ad-cancel-btn').style.display='none';
+}
+function clearAdForm() {
+  ['ad-name','ad-tagline','ad-icon','ad-start','ad-end','ad-budget'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+  var p=document.getElementById('ad-provider'); if(p) p.selectedIndex=0;
+  selectedAdPlan='basic';
+  document.querySelectorAll('.plan-btn').forEach(function(b,i){ b.classList.toggle('active',i===0); });
+  updateAdPreview();
+}
+function toggleAdStatus(id) {
+  var ads = getAdsList();
+  var idx = ads.findIndex(function(a){ return a.id===id; });
+  if (idx<0) return;
+  ads[idx].status = ads[idx].status==='active' ? 'paused' : 'active';
+  saveAdsList(ads);
+  renderAdsList('all');
+  showToast(ads[idx].status==='active' ? '✓ Anuncio activado' : 'Anuncio pausado');
+}
+function deleteAd(id) {
+  saveAdsList(getAdsList().filter(function(a){ return a.id!==id; }));
+  renderAdsList('all');
+  showToast('Anuncio eliminado');
+}
+
+// ── CHARTS ────────────────────────────────────────────────────
+function buildBarChart() {
+  var data = [{l:'Lun',v:38},{l:'Mar',v:50},{l:'Mié',v:43},{l:'Jue',v:59},{l:'Vie',v:69},{l:'Sáb',v:62},{l:'Dom',v:28}];
+  var max = Math.max.apply(null, data.map(function(d){ return d.v; }));
+  var el = document.getElementById('bar-chart');
+  if (!el) return;
+  el.innerHTML = data.map(function(d){
+    var h = Math.round((d.v/max)*100);
+    return '<div class="bar-col"><div class="bar-fill" style="height:'+h+'%;background:var(--accent)"></div><div class="bar-label">'+d.l+'</div><div class="bar-val">'+d.v+'</div></div>';
+  }).join('');
+}
+function buildFunnel() {
+  var steps = [
+    {label:'Visitas', val:12840, pct:100, color:'var(--blue)'},
+    {label:'Buscaron proveedor', val:6420, pct:50, color:'var(--accent)'},
+    {label:'Vieron perfil', val:2568, pct:20, color:'var(--green)'},
+    {label:'Iniciaron reserva', val:770, pct:6, color:'var(--amber)'},
+    {label:'Completaron pago', val:411, pct:3.2, color:'var(--red)'},
+  ];
+  var el = document.getElementById('funnel-chart');
+  if (!el) return;
+  el.innerHTML = steps.map(function(s){
+    return '<div style="margin-bottom:10px">' +
+      '<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>'+s.label+'</span><span style="color:var(--muted)">'+s.val.toLocaleString()+' ('+s.pct+'%)</span></div>' +
+      '<div style="height:6px;background:var(--surface2);border-radius:3px;overflow:hidden"><div style="height:100%;width:'+s.pct+'%;background:'+s.color+';border-radius:3px;transition:width .5s"></div></div>' +
+    '</div>';
+  }).join('');
+}
+
+// ── INJECTREVIEWALERT + INIT ───────────────────────────────────
+function injectReviewAlert() {
+  var counts = DB.providers.counts();
+  var badge = document.getElementById('review-alert-badge');
+  if (counts.review > 0) {
+    if (!badge) {
+      badge = document.createElement('div');
+      badge.className = 'kpi';
+      badge.id = 'review-alert-badge';
+      badge.style.cssText = 'border-color:var(--amber);background:rgba(245,158,11,0.05);cursor:pointer;grid-column:span 1';
+      badge.onclick = function(){ showPage('providers'); };
+      var grid = document.querySelector('#page-dashboard .kpi-grid');
+      if (grid) grid.appendChild(badge);
+    }
+    badge.innerHTML = '<div class="kpi-header"><span class="kpi-label">Pendientes revisión</span><div class="kpi-icon" style="background:var(--amber-dim)">⏳</div></div><div class="kpi-val" style="color:var(--amber)">'+counts.review+'</div><div class="kpi-delta" style="color:var(--amber)">→ Click para revisar</div>';
+  } else if (badge) { badge.remove(); }
+}
+
+var _bkFilter = 'all';
+
+function renderBookings() {
+  var all = DB.bookings.getAll();
+
+  // KPI strip
+  var kpis = document.getElementById('bk-kpis');
+  if (kpis) {
+    var counts = DB.bookings.counts();
+    var gmv = all.reduce(function(s,b){ return s + (parseFloat(b.total||b.price||0)); }, 0);
+    var escrow = all.filter(function(b){ return b.paymentStatus === 'escrow'; })
+                    .reduce(function(s,b){ return s + (parseFloat(b.total||b.price||0)); }, 0);
+    kpis.innerHTML = [
+      ['Total reservas', all.length, 'var(--blue)'],
+      ['Completadas', counts.completed || 0, 'var(--green)'],
+      ['En escrow', '$' + escrow.toLocaleString(), 'var(--amber)'],
+      ['GMV total', '$' + gmv.toLocaleString(), 'var(--accent)'],
+    ].map(function(k){
+      return '<div style="background:var(--surface);border:1.5px solid var(--border2);border-radius:12px;padding:14px">' +
+        '<div style="font-size:11px;color:var(--muted);margin-bottom:6px">' + k[0] + '</div>' +
+        '<div style="font-size:22px;font-weight:700;color:' + k[2] + '">' + k[1] + '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  var q = (document.getElementById('bk-search') || {}).value || '';
+  var filtered = all.filter(function(b){
+    if (_bkFilter !== 'all' && b.status !== _bkFilter) return false;
+    if (q) {
+      var hay = ((b.clientName||'')+(b.providerName||b.providerId||'')+(b.service||'')+(b.id||'')).toLowerCase();
+      if (!hay.includes(q.toLowerCase())) return false;
+    }
+    return true;
+  });
+
+  // Sort newest first
+  filtered.sort(function(a,b){ return (b.createdAt||'') > (a.createdAt||'') ? 1 : -1; });
+
+  var tbody = document.getElementById('bk-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+
+  if (!filtered.length) {
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<td colspan="9" style="text-align:center;padding:40px;color:var(--muted)">' +
+      (all.length === 0
+        ? '<div style="font-size:32px;margin-bottom:12px">📋</div><div>Aún no hay reservas — aparecerán aquí cuando los clientes agenden servicios</div>'
+        : 'Sin resultados para este filtro') +
+    '</td>';
+    tbody.appendChild(tr);
+    return;
+  }
+
+  filtered.forEach(function(b) {
+    var statusColor = {
+      pending:   'var(--amber)', confirmed: 'var(--blue)',
+      completed: 'var(--green)', cancelled: 'var(--muted)',
+      cancelled_by_provider: 'var(--red)', cancelled_by_user: 'var(--red)',
+    }[b.status] || 'var(--muted)';
+    var statusLabel = {
+      pending:   'Pendiente',   confirmed: 'Confirmada',
+      completed: 'Completada',  cancelled: 'Cancelada',
+      cancelled_by_provider: 'Canc. proveedor',
+      cancelled_by_user: 'Canc. cliente',
+    }[b.status] || b.status || '—';
+    var payColor  = b.paymentStatus === 'escrow'    ? 'var(--amber)' :
+                    b.paymentStatus === 'released'   ? 'var(--green)' :
+                    b.paymentStatus === 'refunded'   ? 'var(--blue)'  : 'var(--muted)';
+    var payLabel  = b.paymentStatus === 'escrow'   ? 'En escrow'  :
+                    b.paymentStatus === 'released'  ? 'Liberado'   :
+                    b.paymentStatus === 'refunded'  ? 'Reembolsado': '—';
+    var amount    = b.total || b.price || 0;
+    var dateStr   = b.date || (b.createdAt ? b.createdAt.slice(0,10) : '—');
+    var provName  = b.providerName || b.providerId || '—';
+    var clientName= b.clientName  || b.userId     || '—';
+    var service   = b.service     || b.category   || '—';
+    var bkId      = b.id || '—';
+
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td class="cell-mono" style="font-size:11px">' + bkId + '</td>' +
+      '<td>' + clientName + '</td>' +
+      '<td>' + provName + '</td>' +
+      '<td style="color:var(--muted);font-size:12px">' + service + '</td>' +
+      '<td style="font-size:12px">' + dateStr + (b.time ? ' ' + b.time : '') + '</td>' +
+      '<td class="cell-mono" style="color:var(--accent)">' + (amount ? '$' + Number(amount).toLocaleString() : '—') + '</td>' +
+      '<td><span style="font-size:11px;font-weight:600;color:' + payColor + '">' + payLabel + '</span></td>' +
+      '<td><span class="badge" style="background:' + statusColor + '22;color:' + statusColor + '">' + statusLabel + '</span></td>' +
+      '<td></td>';
+
+    var actions = tr.querySelector('td:last-child');
+    if (b.status === 'pending' || b.status === 'confirmed') {
+      var btnCancel = document.createElement('button');
+      btnCancel.className = 'btn-sm danger';
+      btnCancel.textContent = 'Cancelar';
+      btnCancel.dataset.bkAction = 'cancel';
+      btnCancel.dataset.bkId = b.id;
+      actions.appendChild(btnCancel);
+    }
+    if (b.paymentStatus === 'escrow' && b.status === 'completed') {
+      var btnRelease = document.createElement('button');
+      btnRelease.className = 'btn-sm success';
+      btnRelease.textContent = 'Liberar pago';
+      btnRelease.dataset.bkAction = 'release';
+      btnRelease.dataset.bkId = b.id;
+      actions.appendChild(btnRelease);
+    }
+    var btnView = document.createElement('button');
+    btnView.className = 'btn-sm';
+    btnView.textContent = 'Ver';
+    btnView.dataset.bkAction = 'view';
+    btnView.dataset.bkId = b.id;
+    actions.appendChild(btnView);
+
+    tbody.appendChild(tr);
+  });
+
+  // Delegated click
+  if (!tbody._bkDelegated) {
+    tbody._bkDelegated = true;
+    tbody.addEventListener('click', function(e) {
+      var btn = e.target.closest('[data-bk-action]');
+      if (!btn) return;
+      var action = btn.dataset.bkAction;
+      var id     = btn.dataset.bkId;
+      if (action === 'cancel')  adminCancelBooking(id);
+      if (action === 'release') adminReleasePayment(id);
+      if (action === 'view')    adminViewBooking(id);
+    });
+  }
+}
+
+function filterBookings(filter, el) {
+  if (filter) _bkFilter = filter;
+  document.querySelectorAll('#bk-tabs .mod-tab').forEach(function(t){ t.classList.remove('active'); });
+  if (el) el.classList.add('active');
+  renderBookings();
+}
+
+function adminCancelBooking(id) {
+  var bk = DB.bookings.getById(id);
+  if (!bk) return;
+  DB.bookings.save(Object.assign({}, bk, { status: 'cancelled', paymentStatus: 'refunded' }));
+  renderBookings();
+  showToast('Reserva cancelada y reembolsada', 'error');
+}
+
+function adminReleasePayment(id) {
+  var bk = DB.bookings.getById(id);
+  if (!bk) return;
+  DB.bookings.save(Object.assign({}, bk, { paymentStatus: 'released' }));
+  renderBookings();
+  showToast('✓ Pago liberado al proveedor', 'success');
+}
+
+function adminViewBooking(id) {
+  var bk = DB.bookings.getById(id);
+  if (!bk) return;
+  showToast('Reserva ' + bk.id + ' · ' + (bk.service||'') + ' · $' + (bk.total||bk.price||0));
+}
+
+
+// ── PAYMENTS ─────────────────────────────────────────────────
+var _payFilter = 'all';
+
+function renderPayments() {
+  var all = DB.bookings.getAll();
+
+  // KPI strip
+  var kpis = document.getElementById('pay-kpis');
+  if (kpis) {
+    var escrowBks  = all.filter(function(b){ return b.paymentStatus === 'escrow'; });
+    var releasedBks= all.filter(function(b){ return b.paymentStatus === 'released'; });
+    var tipsTotal  = all.reduce(function(s,b){ return s + (parseFloat(b.tip)||0); }, 0);
+    var feeTotal   = all.reduce(function(s,b){ return s + (parseFloat(b.platformFee)||0); }, 0);
+    var gmvTotal   = all.reduce(function(s,b){ return s + (parseFloat(b.total)||parseFloat(b.price)||0); }, 0);
+    var escrowAmt  = escrowBks.reduce(function(s,b){ return s + (parseFloat(b.total)||0); }, 0);
+
+    kpis.innerHTML = [
+      ['GMV total', '$' + gmvTotal.toLocaleString(), 'var(--text)'],
+      ['Comisiones ganadas', '$' + feeTotal.toLocaleString(), 'var(--accent)'],
+      ['Propinas totales', '$' + tipsTotal.toLocaleString(), 'var(--amber)'],
+      ['En escrow', '$' + escrowAmt.toLocaleString(), 'var(--blue)'],
+    ].map(function(k){
+      return '<div style="background:var(--surface);border:1.5px solid var(--border2);border-radius:12px;padding:16px">' +
+        '<div style="font-size:11px;color:var(--muted);margin-bottom:6px">' + k[0] + '</div>' +
+        '<div style="font-size:24px;font-weight:700;color:' + k[2] + '">' + k[1] + '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  // Period summary
+  var summary = document.getElementById('pay-period-summary');
+  if (summary) {
+    var bksWithTip = all.filter(function(b){ return parseFloat(b.tip||0) > 0; });
+    var avgTip = bksWithTip.length
+      ? Math.round(bksWithTip.reduce(function(s,b){ return s+(parseFloat(b.tip)||0); },0) / bksWithTip.length)
+      : 0;
+    summary.innerHTML = [
+      ['Total reservas procesadas', all.length],
+      ['Reservas con propina', bksWithTip.length + ' (' + (all.length ? Math.round(bksWithTip.length/all.length*100) : 0) + '%)'],
+      ['Propina promedio', bksWithTip.length ? '$' + avgTip + ' MXN' : '—'],
+      ['Reservas en escrow', all.filter(function(b){ return b.paymentStatus==='escrow'; }).length],
+      ['Pagos liberados', all.filter(function(b){ return b.paymentStatus==='released'; }).length],
+    ].map(function(r){
+      return '<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)">' +
+        '<span>' + r[0] + '</span><span style="font-weight:600;color:var(--text)">' + r[1] + '</span></div>';
+    }).join('');
+  }
+
+  // Filter
+  var filtered = all.filter(function(b){
+    if (_payFilter === 'escrow')   return b.paymentStatus === 'escrow';
+    if (_payFilter === 'released') return b.paymentStatus === 'released';
+    if (_payFilter === 'tips')     return parseFloat(b.tip||0) > 0;
+    return true;
+  }).sort(function(a,b){ return (b.createdAt||'') > (a.createdAt||'') ? 1 : -1; });
+
+  var tbody = document.getElementById('pay-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+
+  if (!filtered.length) {
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<td colspan="10" style="text-align:center;padding:40px;color:var(--muted)">' +
+      (all.length === 0
+        ? '<div style="font-size:32px;margin-bottom:12px">💳</div><div>Los pagos aparecerán aquí cuando los clientes realicen reservas</div>'
+        : 'Sin pagos para este filtro') +
+    '</td>';
+    tbody.appendChild(tr);
+    return;
+  }
+
+  filtered.forEach(function(b) {
+    var sub     = parseFloat(b.price || 0);
+    var fee     = parseFloat(b.platformFee || Math.round(sub * 0.15));
+    var tip     = parseFloat(b.tip || 0);
+    var payout  = sub - fee + tip;   // what provider gets: 85% of service + 100% of tip
+    var payColor = b.paymentStatus === 'escrow'   ? 'var(--blue)' :
+                   b.paymentStatus === 'released' ? 'var(--green)' : 'var(--muted)';
+    var payLabel = b.paymentStatus === 'escrow'   ? '🔒 Escrow' :
+                   b.paymentStatus === 'released' ? '✓ Liberado' :
+                   b.paymentStatus === 'refunded' ? '↩ Reembolsado' : '—';
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td class="cell-mono" style="font-size:11px">' + (b.id||'—') + '</td>' +
+      '<td>' + (b.providerName||b.providerId||'—') + '</td>' +
+      '<td>' + (b.clientName||b.userId||'—') + '</td>' +
+      '<td style="color:var(--muted);font-size:12px">' + (b.service||b.category||'—') + '</td>' +
+      '<td class="cell-mono">$' + sub.toLocaleString() + '</td>' +
+      '<td class="cell-mono" style="color:var(--accent)">$' + fee.toLocaleString() + '</td>' +
+      '<td class="cell-mono" style="color:var(--amber)">' + (tip > 0 ? '$' + tip.toLocaleString() : '—') + '</td>' +
+      '<td class="cell-mono" style="color:var(--green);font-weight:600">$' + payout.toLocaleString() + '</td>' +
+      '<td><span style="font-size:11px;font-weight:600;color:' + payColor + '">' + payLabel + '</span></td>' +
+      '<td></td>';
+
+    var actions = tr.querySelector('td:last-child');
+    if (b.paymentStatus === 'escrow' && b.status === 'completed') {
+      var btnRelease = document.createElement('button');
+      btnRelease.className = 'btn-sm success';
+      btnRelease.textContent = 'Liberar';
+      btnRelease.dataset.payAction = 'release';
+      btnRelease.dataset.bkId = b.id;
+      actions.appendChild(btnRelease);
+    }
+    tbody.appendChild(tr);
+  });
+
+  if (!tbody._payDelegated) {
+    tbody._payDelegated = true;
+    tbody.addEventListener('click', function(e) {
+      var btn = e.target.closest('[data-pay-action]');
+      if (!btn) return;
+      if (btn.dataset.payAction === 'release') adminReleasePayment(btn.dataset.bkId);
+    });
+  }
+}
+
+function filterPayments(filter, el) {
+  _payFilter = filter;
+  document.querySelectorAll('#pay-tabs .mod-tab').forEach(function(t){ t.classList.remove('active'); });
+  if (el) el.classList.add('active');
+  renderPayments();
+}
+function toggleSetting(el) {
+  el.classList.toggle('on');
+  showToast(el.classList.contains('on') ? '✓ Activado' : 'Desactivado', el.classList.contains('on') ? 'success' : '');
+}
+
+function showToast(msg, type) {
+  type = type || '';
+  var t = document.getElementById('toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.className = 'toast show' + (type ? ' '+type : '');
+  setTimeout(function(){ t.classList.remove('show'); }, 3000);
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.lang-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.lang === getLang()); });
+  refreshNavCounts();
+  refreshDashboardKPIs();
+  buildBarChart();
+  renderProviders(getProviders().map(mapProvider));
+  filterProviders('all', null);
+  renderDisputes(DISPUTES);
+  buildFunnel();
+  injectReviewAlert();
+});
+
+// Live sync from other tabs and from admin itself
+window.addEventListener('db:change', function(e) {
+  if (!e.detail) return;
+  var key = e.detail.key;
+  if (key === 'chambers-online_providers') {
+    var active = document.querySelector('.page.active');
+    if (active && active.id === 'page-providers') filterProviders(currentProvFilter, null);
+    refreshNavCounts();
+    injectReviewAlert();
+    showToast('↻ Proveedores actualizados');
+  }
+  if (key === 'chambers-online_bookings') {
+    var activePg4 = document.querySelector('.page.active');
+    if (activePg4 && activePg4.id === 'page-payments') renderPayments();
+    var activePg = document.querySelector('.page.active');
+    if (activePg && activePg.id === 'page-bookings') renderBookings();
+    refreshDashboardKPIs();
+  }
+  if (key === 'chambers-online_categories') {
+    var active2 = document.querySelector('.page.active');
+    if (active2 && active2.id === 'page-categories') renderCatsList();
+    showToast('↻ Categorías sincronizadas con el cliente');
+  }
+  if (key === 'chambers-online_ads') {
+    var active3 = document.querySelector('.page.active');
+    if (active3 && active3.id === 'page-ads') renderAdsList();
+  }
+});
+
+
+</script>
+</body>
+</html>

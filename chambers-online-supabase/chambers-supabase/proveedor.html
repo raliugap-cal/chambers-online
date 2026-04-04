@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chambers-online — Panel Proveedor</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #fafaf7;
+  --surface: #ffffff;
+  --surface2: #f4f3ef;
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.14);
+  --text: #1a1a18;
+  --muted: #7a7a72;
+  --accent: #1e6b3a;
+  --accent-light: #e8f5ee;
+  --accent-mid: #3a9e5f;
+  --blue: #1a5fa8;
+  --blue-light: #e6f0fb;
+  --red: #c0392b;
+  --red-light: #fdf0ef;
+  --amber: #b45309;
+  --amber-light: #fef3e0;
+  --purple: #5b3a9e;
+  --purple-light: #f0ebfc;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --font-head: 'Instrument Serif', serif;
+  --font-body: 'Outfit', sans-serif;
+  --shadow: 0 2px 12px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 24px rgba(0,0,0,0.10);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: var(--font-body); font-size: 15px; line-height: 1.5; min-height: 100vh; }
+.screen { display: none; min-height: 100vh; flex-direction: column; }
+.screen.active { display: flex; }
+
+/* TOP BAR */
+.topbar {
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 14px 20px; display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow);
+}
+.topbar-logo { font-family: var(--font-head); font-size: 20px; color: var(--accent); font-style: italic; }
+.topbar-title { font-family: var(--font-body); font-size: 15px; font-weight: 600; color: var(--text); }
+.topbar-right { display: flex; align-items: center; gap: 10px; }
+.notif-btn { width: 36px; height: 36px; border-radius: 50%; background: var(--surface2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; font-size: 16px; transition: all 0.2s; }
+.notif-btn:hover { background: var(--accent-light); }
+.notif-dot { position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; border-radius: 50%; background: var(--red); border: 2px solid var(--surface); }
+.avatar-prov { width: 36px; height: 36px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 600; font-size: 13px; cursor: pointer; }
+
+/* BOTTOM NAV */
+.bottom-nav {
+  background: var(--surface); border-top: 1px solid var(--border);
+  display: flex; padding: 8px 0 12px; position: sticky; bottom: 0; z-index: 100;
+  box-shadow: 0 -2px 12px rgba(0,0,0,0.06);
+}
+.bnav-btn {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 4px; cursor: pointer; background: none; border: none; font-family: var(--font-body);
+  transition: all 0.2s;
+}
+.bnav-icon { font-size: 20px; line-height: 1; }
+.bnav-label { font-size: 11px; font-weight: 500; color: var(--muted); }
+.bnav-btn.active .bnav-label { color: var(--accent); }
+.bnav-btn.active .bnav-icon { filter: none; }
+
+/* CONTENT */
+.content { flex: 1; overflow-y: auto; padding: 20px; max-width: 680px; margin: 0 auto; width: 100%; }
+
+/* STATUS TOGGLE */
+.status-toggle-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 20px; box-shadow: var(--shadow); display: flex; align-items: center; justify-content: space-between; }
+.status-info { display: flex; align-items: center; gap: 12px; }
+.status-circle { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: all 0.3s; }
+.status-circle.online { background: var(--accent-light); }
+.status-circle.offline { background: var(--surface2); }
+.status-text .st-title { font-weight: 600; font-size: 15px; }
+.status-text .st-sub { font-size: 12px; color: var(--muted); }
+.toggle-switch { width: 52px; height: 28px; background: var(--surface2); border-radius: 14px; position: relative; cursor: pointer; transition: background 0.3s; border: 1px solid var(--border); }
+.toggle-switch.on { background: var(--accent); border-color: var(--accent); }
+.toggle-thumb { position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: transform 0.3s; }
+.toggle-switch.on .toggle-thumb { transform: translateX(24px); }
+
+/* KPI ROW */
+.kpi-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+.kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; box-shadow: var(--shadow); }
+.kpi-val { font-family: var(--font-head); font-size: 24px; font-style: italic; color: var(--text); line-height: 1; margin-bottom: 2px; }
+.kpi-label { font-size: 11px; color: var(--muted); font-weight: 500; }
+.kpi-delta { font-size: 11px; margin-top: 4px; font-weight: 600; }
+.kpi-delta.up { color: var(--accent-mid); }
+.kpi-delta.down { color: var(--red); }
+
+/* SECTION */
+.section { margin-bottom: 24px; }
+.section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.section-title { font-family: var(--font-head); font-size: 20px; font-style: italic; }
+.section-link { font-size: 13px; color: var(--accent); cursor: pointer; font-weight: 500; }
+
+/* REQUEST CARDS */
+.request-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 10px; box-shadow: var(--shadow); transition: all 0.2s; }
+.request-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.rc-top { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 14px; }
+.rc-avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; color: var(--muted); flex-shrink: 0; border: 1px solid var(--border); font-family: var(--font-head); }
+.rc-info { flex: 1; }
+.rc-name { font-weight: 600; font-size: 15px; margin-bottom: 2px; }
+.rc-meta { font-size: 12px; color: var(--muted); }
+.rc-time { font-size: 12px; color: var(--muted); text-align: right; flex-shrink: 0; }
+.rc-detail { background: var(--surface2); border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 14px; font-size: 13px; }
+.rc-detail-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
+.rc-detail-row:last-child { margin-bottom: 0; }
+.rc-dlabel { color: var(--muted); }
+.rc-dval { font-weight: 500; }
+.rc-actions { display: flex; gap: 8px; }
+.btn-accept { flex: 1; background: var(--accent); color: #fff; border: none; border-radius: var(--radius-sm); padding: 11px; font-weight: 600; font-size: 14px; cursor: pointer; font-family: var(--font-body); transition: all 0.2s; }
+.btn-accept:hover { background: var(--accent-mid); transform: translateY(-1px); }
+.btn-reject { flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 11px; font-weight: 500; font-size: 14px; cursor: pointer; color: var(--muted); font-family: var(--font-body); transition: all 0.2s; }
+.btn-reject:hover { border-color: var(--red); color: var(--red); background: var(--red-light); }
+
+/* CALENDAR */
+.cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.cal-nav { width: 32px; height: 32px; border-radius: 50%; background: var(--surface2); border: 1px solid var(--border); cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+.cal-nav:hover { background: var(--accent-light); }
+.cal-month { font-family: var(--font-head); font-size: 18px; font-style: italic; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.cal-day-label { text-align: center; font-size: 11px; font-weight: 600; color: var(--muted); padding: 4px 0; }
+.cal-day { aspect-ratio: 1; border-radius: var(--radius-sm); display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.2s; border: 1px solid transparent; position: relative; }
+.cal-day:hover { background: var(--accent-light); }
+.cal-day.today { border-color: var(--accent); color: var(--accent); font-weight: 700; }
+.cal-day.selected { background: var(--accent); color: #fff; border-color: var(--accent); }
+.cal-day.has-bookings::after { content: ''; position: absolute; bottom: 4px; width: 4px; height: 4px; border-radius: 50%; background: var(--accent-mid); }
+.cal-day.selected::after { background: rgba(255,255,255,0.7); }
+.cal-day.empty { cursor: default; }
+.cal-day.other-month { color: var(--muted); opacity: 0.4; }
+.time-slots-wrap { margin-top: 16px; }
+.time-slots-title { font-size: 14px; font-weight: 600; margin-bottom: 10px; }
+.time-slots-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.ts-slot { padding: 8px 4px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); text-align: center; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+.ts-slot.free { border-color: var(--accent); background: var(--accent-light); color: var(--accent); }
+.ts-slot.booked { background: var(--amber-light); border-color: rgba(180,83,9,0.3); color: var(--amber); cursor: default; }
+.ts-slot.blocked { background: var(--surface2); color: var(--muted); cursor: default; }
+.ts-slot.free:hover { background: var(--accent); color: #fff; }
+.legend-row { display: flex; gap: 12px; margin-top: 10px; flex-wrap: wrap; }
+.legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); }
+.legend-dot { width: 10px; height: 10px; border-radius: 3px; }
+
+/* EARNINGS */
+.earnings-header { background: linear-gradient(135deg, var(--accent) 0%, var(--accent-mid) 100%); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; color: #fff; }
+.eh-label { font-size: 12px; opacity: 0.8; margin-bottom: 4px; }
+.eh-amount { font-family: var(--font-head); font-size: 40px; font-style: italic; line-height: 1; margin-bottom: 8px; }
+.eh-sub { font-size: 13px; opacity: 0.8; }
+.earnings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+.earn-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; }
+.earn-val { font-family: var(--font-head); font-size: 22px; font-style: italic; color: var(--text); margin-bottom: 2px; }
+.earn-label { font-size: 12px; color: var(--muted); }
+.payout-list { display: flex; flex-direction: column; gap: 8px; }
+.payout-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; display: flex; align-items: center; gap: 12px; }
+.payout-icon { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.payout-icon.pending { background: var(--amber-light); }
+.payout-icon.released { background: var(--accent-light); }
+.payout-info { flex: 1; }
+.payout-title { font-weight: 600; font-size: 14px; margin-bottom: 2px; }
+.payout-sub { font-size: 12px; color: var(--muted); }
+.payout-amount { font-family: var(--font-head); font-size: 18px; font-style: italic; font-weight: 700; }
+.payout-amount.pending { color: var(--amber); }
+.payout-amount.released { color: var(--accent); }
+
+/* PROFILE FORM */
+.form-section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; box-shadow: var(--shadow); }
+.form-section-title { font-family: var(--font-head); font-size: 17px; font-style: italic; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+.form-group { margin-bottom: 14px; }
+.form-label { font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 6px; display: block; text-transform: uppercase; letter-spacing: 0.05em; }
+.form-input { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 11px 14px; color: var(--text); font-family: var(--font-body); font-size: 14px; outline: none; transition: border-color 0.2s; }
+.form-input:focus { border-color: var(--accent); }
+.form-textarea { min-height: 80px; resize: vertical; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.chip-select { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface2); font-size: 13px; font-weight: 500; cursor: pointer; color: var(--muted); transition: all 0.2s; }
+.chip.selected { background: var(--accent-light); border-color: rgba(30,107,58,0.4); color: var(--accent); }
+.schedule-grid { display: grid; grid-template-columns: auto 1fr 1fr; gap: 8px; align-items: center; }
+.day-label { font-size: 13px; font-weight: 600; color: var(--muted); }
+.time-input { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; color: var(--text); font-family: var(--font-body); font-size: 13px; outline: none; width: 100%; transition: border-color 0.2s; }
+.time-input:focus { border-color: var(--accent); }
+.toggle-day { width: 20px; height: 20px; border-radius: 4px; background: var(--surface2); border: 1.5px solid var(--border); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; margin: auto; }
+.toggle-day.on { background: var(--accent); border-color: var(--accent); }
+.btn-save { width: 100%; background: var(--accent); color: #fff; border: none; border-radius: var(--radius-sm); padding: 14px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: var(--font-body); transition: all 0.2s; }
+.btn-save:hover { background: var(--accent-mid); transform: translateY(-1px); }
+.verified-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; background: var(--accent-light); border-radius: 20px; font-size: 12px; color: var(--accent); font-weight: 600; border: 1px solid rgba(30,107,58,0.2); }
+.toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(60px); background: var(--text); color: var(--bg); border-radius: 50px; padding: 12px 24px; font-size: 13px; font-weight: 600; z-index: 500; transition: transform 0.3s; white-space: nowrap; display: flex; align-items: center; gap: 8px; }
+.toast.show { transform: translateX(-50%) translateY(0); }
+.empty-state { text-align: center; padding: 40px 20px; }
+.empty-icon { font-size: 40px; margin-bottom: 10px; opacity: 0.4; }
+.empty-title { font-family: var(--font-head); font-size: 18px; font-style: italic; margin-bottom: 4px; }
+.empty-sub { color: var(--muted); font-size: 13px; }
+
+.lang-toggle{display:flex;gap:4px;background:rgba(255,255,255,.05);border-radius:20px;padding:3px;border:1px solid rgba(255,255,255,.1);}
+.lang-btn{padding:4px 10px;border-radius:16px;font-size:11px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--muted);font-family:var(--font-body);transition:all .2s;}
+.lang-btn.active{background:var(--accent);color:#000;}
+</style>
+
+<script src="/_env.js"></script>
+<script src="/db-client.js"></script>
+</head>
+<body>
+
+
+<div id="screen-home" class="screen active">
+  <div class="topbar">
+    <div class="topbar-logo">Chambers-online</div>
+    <div class="topbar-title">Inicio</div>
+    <div class="topbar-right"><div class="lang-toggle" style="margin-right:8px"><button class="lang-btn" data-lang="es" onclick="setLang('es')">ES</button><button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button></div>
+      <div class="notif-btn" onclick="showToast('3 notificaciones nuevas')">🔔<div class="notif-dot"></div></div>
+      <div class="avatar-prov">JM</div>
+    </div>
+  </div>
+  <div class="content" id="home-content"></div>
+  <div class="bottom-nav" id="bnav-home">
+    <button class="bnav-btn active" onclick="showTab('home')"><div class="bnav-icon">🏠</div><div class="bnav-label">Inicio</div></button>
+    <button class="bnav-btn" onclick="showTab('agenda')"><div class="bnav-icon">📅</div><div class="bnav-label">Agenda</div></button>
+    <button class="bnav-btn" onclick="showTab('earnings')"><div class="bnav-icon">💰</div><div class="bnav-label">Ganancias</div></button>
+    <button class="bnav-btn" onclick="showTab('profile')"><div class="bnav-icon">👤</div><div class="bnav-label">Perfil</div></button>
+  </div>
+</div>
+
+<div id="screen-agenda" class="screen">
+  <div class="topbar">
+    <div class="topbar-logo">Chambers-online</div>
+    <div class="topbar-title">Mi Agenda</div>
+    <div class="topbar-right">
+      <div class="notif-btn" onclick="showToast('3 notificaciones nuevas')">🔔<div class="notif-dot"></div></div>
+      <div class="avatar-prov">JM</div>
+    </div>
+  </div>
+  <div class="content" id="agenda-content"></div>
+  <div class="bottom-nav">
+    <button class="bnav-btn" onclick="showTab('home')"><div class="bnav-icon">🏠</div><div class="bnav-label">Inicio</div></button>
+    <button class="bnav-btn active" onclick="showTab('agenda')"><div class="bnav-icon">📅</div><div class="bnav-label">Agenda</div></button>
+    <button class="bnav-btn" onclick="showTab('earnings')"><div class="bnav-icon">💰</div><div class="bnav-label">Ganancias</div></button>
+    <button class="bnav-btn" onclick="showTab('profile')"><div class="bnav-icon">👤</div><div class="bnav-label">Perfil</div></button>
+  </div>
+</div>
+
+<div id="screen-earnings" class="screen">
+  <div class="topbar">
+    <div class="topbar-logo">Chambers-online</div>
+    <div class="topbar-title">Ganancias</div>
+    <div class="topbar-right">
+      <div class="avatar-prov">JM</div>
+    </div>
+  </div>
+  <div class="content" id="earnings-content"></div>
+  <div class="bottom-nav">
+    <button class="bnav-btn" onclick="showTab('home')"><div class="bnav-icon">🏠</div><div class="bnav-label">Inicio</div></button>
+    <button class="bnav-btn" onclick="showTab('agenda')"><div class="bnav-icon">📅</div><div class="bnav-label">Agenda</div></button>
+    <button class="bnav-btn active" onclick="showTab('earnings')"><div class="bnav-icon">💰</div><div class="bnav-label">Ganancias</div></button>
+    <button class="bnav-btn" onclick="showTab('profile')"><div class="bnav-icon">👤</div><div class="bnav-label">Perfil</div></button>
+  </div>
+</div>
+
+<div id="screen-profile" class="screen">
+  <div class="topbar">
+    <div class="topbar-logo">Chambers-online</div>
+    <div class="topbar-title">Mi Perfil</div>
+    <div class="topbar-right">
+      <div class="avatar-prov">JM</div>
+    </div>
+  </div>
+  <div class="content" id="profile-content"></div>
+  <div class="bottom-nav">
+    <button class="bnav-btn" onclick="showTab('home')"><div class="bnav-icon">🏠</div><div class="bnav-label">Inicio</div></button>
+    <button class="bnav-btn" onclick="showTab('agenda')"><div class="bnav-icon">📅</div><div class="bnav-label">Agenda</div></button>
+    <button class="bnav-btn" onclick="showTab('earnings')"><div class="bnav-icon">💰</div><div class="bnav-label">Ganancias</div></button>
+    <button class="bnav-btn active" onclick="showTab('profile')"><div class="bnav-icon">👤</div><div class="bnav-label">Perfil</div></button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let isOnline = true;
+let selectedCalDay = 24;
+
+
+// ── i18n — Bilingual ES/EN ───────────────────────────────────────────────
+const STRINGS = {
+  es: {
+    // Nav
+    nav_search:       'Buscar',
+    nav_tracking:     'En curso',
+    nav_history:      'Historial',
+    nav_dashboard:    'Dashboard',
+    nav_providers:    'Proveedores',
+    nav_bookings:     'Reservas',
+    nav_disputes:     'Disputas',
+    nav_payments:     'Pagos',
+    nav_analytics:    'Analytics',
+    nav_settings:     'Configuración',
+    nav_categories:   'Categorías',
+    // Hero
+    hero_title:       'Encuentra al',
+    hero_highlight:   'profesional',
+    hero_sub:         'cerca de ti',
+    hero_placeholder: '¿Qué servicio necesitas?',
+    btn_search:       'Buscar',
+    // Categories
+    cat_all:          'Todos',
+    // Provider card
+    prov_verified:    'Verificado',
+    prov_company:     'Empresa',
+    prov_independent: 'Independiente',
+    prov_score:       'puntuación',
+    prov_exp_years:   'años exp.',
+    prov_view:        'Ver perfil',
+    prov_per_hour:    '/hora',
+    prov_no_results:  'No hay resultados en esta categoría',
+    prov_in_review:   'profesionales en revisión — disponibles tras la aprobación del administrador',
+    prov_try_other:   'Prueba otra categoría o amplía tu búsqueda',
+    // Profile
+    prof_back:        'Volver',
+    prof_step_profile:'Perfil',
+    prof_step_time:   'Horario',
+    prof_step_confirm:'Confirmar',
+    prof_step_pay:    'Pago',
+    prof_pick_date:   'Selecciona fecha y hora',
+    prof_no_slots:    'No hay horarios disponibles para este día. Intenta con otra fecha.',
+    prof_select_slot: 'Selecciona un horario disponible',
+    prof_book:        'Reservar',
+    prof_at:          'a las',
+    prof_reviews:     'Reseñas de clientes',
+    prof_avg:         'promedio',
+    // Confirm modal
+    modal_title:      'Confirmar tu reserva',
+    modal_provider:   'Proveedor',
+    modal_service:    'Servicio',
+    modal_date:       'Fecha',
+    modal_time:       'Hora',
+    modal_subtotal:   'Servicio (1 hr)',
+    modal_fee:        'Tarifa de servicio (15%)',
+    modal_total:      'Total',
+    modal_escrow:     'Tu pago está protegido — se libera solo al completar el servicio',
+    modal_cancel:     'Cancelar',
+    modal_pay:        'Confirmar y pagar',
+    // Tracking
+    track_confirmed:  'Reserva confirmada',
+    track_escrow:     'Pago reservado y protegido',
+    track_on_way:     'en camino',
+    track_eta:        'Tiempo estimado de llegada',
+    track_in_progress:'Servicio en curso',
+    track_completed:  'Servicio finalizado',
+    track_heading:    'El profesional está en camino',
+    track_updated:    'Actualizado hace un momento',
+    track_min_eta:    'min ETA',
+    btn_call:         'Llamar',
+    btn_chat:         'Chat',
+    btn_complete:     'Completado',
+    // History
+    hist_all:         'Todas',
+    hist_upcoming:    'Próximas',
+    hist_completed:   'Completadas',
+    hist_cancelled:   'Canceladas',
+    hist_status_comp: 'Completado',
+    hist_status_canc: 'Cancelado',
+    hist_status_upco: 'Próxima',
+    hist_rate:        'Dejar reseña',
+    hist_cancel:      'Cancelar reserva',
+    hist_view_prov:   'Ver perfil del profesional',
+    hist_empty:       '¡Aún no tienes reservas!',
+    hist_empty_sub:   'Encuentra un profesional y agenda tu primer servicio',
+    hist_no_results:  'Sin resultados para este filtro',
+    // Rating
+    rate_question:    '¿Cómo calificarías el servicio?',
+    rate_placeholder: 'Cuéntanos más (opcional)...',
+    rate_submit:      'Publicar reseña',
+    // Days / Months
+    days:  ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'],
+    months:['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'],
+    // Toasts
+    toast_booking_created:  'Reserva enviada — esperando que el profesional confirme',
+    toast_booking_cancelled:'Reserva cancelada. El reembolso se procesará en 3-5 días hábiles.',
+    toast_rating_sent:      '¡Gracias por tu reseña!',
+    toast_service_done:     '¡Servicio completado! El pago se liberará al profesional en breve.',
+    toast_call:             'Llamando a ',
+    toast_chat:             'Chat iniciado',
+    // Admin
+    adm_title:        'Dashboard',
+    adm_active_prov:  'Proveedores activos',
+    adm_total_books:  'Total de reservas',
+    adm_in_review:    'Pendientes de revisión',
+    adm_rating:       'Calificación promedio',
+    adm_approve:      'Aprobar',
+    adm_reject:       'Rechazar',
+    adm_suspend:      'Suspender',
+    adm_reactivate:   'Reactivar',
+    adm_view:         'Ver detalles',
+    adm_new_badge:    'NUEVO',
+    adm_tab_all:      'Todos',
+    adm_tab_review:   'En revisión',
+    adm_tab_suspended:'Suspendidos',
+    adm_tab_active:   'Activos',
+    adm_cat_new:      'Nueva categoría',
+    adm_cat_save:     'Guardar categoría',
+    adm_cat_cancel:   'Cancelar',
+    adm_cat_name:     'Nombre visible',
+    adm_cat_id:       'ID interno (sin espacios)',
+    adm_cat_icon:     'Ícono (emoji)',
+    adm_cat_desc:     'Descripción corta',
+    adm_cat_active:   'Activas',
+    adm_cat_total:    'Total',
+    // Provider app
+    prov_online:      'Disponible ahora',
+    prov_offline:     'No disponible',
+    prov_toggle_on:   'Estás disponible — los clientes pueden verte',
+    prov_toggle_off:  'Modo offline — no recibirás solicitudes',
+    prov_requests:    'Solicitudes nuevas',
+    prov_no_requests: 'No tienes solicitudes nuevas',
+    prov_accept:      'Aceptar trabajo',
+    prov_reject_req:  'Rechazar solicitud',
+    prov_earnings:    'Ganancias',
+    prov_today:       'Hoy',
+    prov_this_month:  'Este mes',
+    prov_tab_home:    'Inicio',
+    prov_tab_agenda:  'Mi agenda',
+    prov_tab_earnings:'Ganancias',
+    prov_tab_profile: 'Perfil',
+    // Registration
+    reg_country:      '¿En qué país ofreces tus servicios?',
+    reg_type:         '¿Cómo te quieres registrar?',
+    reg_basic:        'Cuéntanos sobre ti',
+    reg_phone:        'Verifica tu número',
+    reg_services:     '¿Qué servicios ofreces?',
+    reg_schedule:     'Configura tu disponibilidad',
+    reg_docs:         'Verificación de identidad',
+    reg_location:     '¿Cuál es tu zona de trabajo?',
+    reg_confirm:      '¡Tu solicitud fue enviada!',
+    btn_continue:     'Continuar',
+    btn_back:         'Atrás',
+    btn_send_otp:     'Enviar código por SMS',
+    btn_create:       'Crear mi cuenta',
+  },
+  en: {
+    // Nav
+    nav_search:       'Search',
+    nav_tracking:     'In Progress',
+    nav_history:      'History',
+    nav_dashboard:    'Dashboard',
+    nav_providers:    'Providers',
+    nav_bookings:     'Bookings',
+    nav_disputes:     'Disputes',
+    nav_payments:     'Payments',
+    nav_analytics:    'Analytics',
+    nav_settings:     'Settings',
+    nav_categories:   'Categories',
+    // Hero
+    hero_title:       'Find the',
+    hero_highlight:   'professional',
+    hero_sub:         'near you',
+    hero_placeholder: 'What service are you looking for?',
+    btn_search:       'Search',
+    // Categories
+    cat_all:          'All',
+    // Provider card
+    prov_verified:    'Verified',
+    prov_company:     'Company',
+    prov_independent: 'Independent',
+    prov_score:       'score',
+    prov_exp_years:   'yrs exp.',
+    prov_view:        'View profile',
+    prov_per_hour:    '/hr',
+    prov_no_results:  'No professionals found in this category',
+    prov_in_review:   'professionals pending review — available after admin approval',
+    prov_try_other:   'Try a different category or expand your search',
+    // Profile
+    prof_back:        'Back',
+    prof_step_profile:'Profile',
+    prof_step_time:   'Time',
+    prof_step_confirm:'Confirm',
+    prof_step_pay:    'Payment',
+    prof_pick_date:   'Select a date and time',
+    prof_no_slots:    'No availability for this day. Please try a different date.',
+    prof_select_slot: 'Select an available time slot',
+    prof_book:        'Book now',
+    prof_at:          'at',
+    prof_reviews:     'Client reviews',
+    prof_avg:         'avg.',
+    // Confirm modal
+    modal_title:      'Review & confirm',
+    modal_provider:   'Provider',
+    modal_service:    'Service',
+    modal_date:       'Date',
+    modal_time:       'Time',
+    modal_subtotal:   'Service (1 hr)',
+    modal_fee:        'Service fee (15%)',
+    modal_total:      'Total',
+    modal_escrow:     'Your payment is protected — released only when the job is done',
+    modal_cancel:     'Cancel',
+    modal_pay:        'Confirm & pay',
+    // Tracking
+    track_confirmed:  'Booking confirmed',
+    track_escrow:     'Payment secured',
+    track_on_way:     'on the way',
+    track_eta:        'Estimated arrival',
+    track_in_progress:'Service in progress',
+    track_completed:  'Service completed',
+    track_heading:    'Your professional is on the way',
+    track_updated:    'Updated just now',
+    track_min_eta:    'min ETA',
+    btn_call:         'Call',
+    btn_chat:         'Chat',
+    btn_complete:     'Mark complete',
+    // History
+    hist_all:         'All',
+    hist_upcoming:    'Upcoming',
+    hist_completed:   'Completed',
+    hist_cancelled:   'Cancelled',
+    hist_status_comp: 'Completed',
+    hist_status_canc: 'Cancelled',
+    hist_status_upco: 'Upcoming',
+    hist_rate:        'Leave a review',
+    hist_cancel:      'Cancel booking',
+    hist_view_prov:   'View professional\'s profile',
+    hist_empty:       'No bookings yet',
+    hist_empty_sub:   'Find a professional and schedule your first service',
+    hist_no_results:  'No results for this filter',
+    // Rating
+    rate_question:    'How would you rate this service?',
+    rate_placeholder: 'Tell us more (optional)...',
+    rate_submit:      'Publish review',
+    // Days / Months
+    days:  ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+    months:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+    // Toasts
+    toast_booking_created:  'Request sent — waiting for the professional to confirm',
+    toast_booking_cancelled:'Booking cancelled. Refund will be processed in 3-5 business days.',
+    toast_rating_sent:      'Thank you for your review!',
+    toast_service_done:     'Service complete! Payment will be released to the professional shortly.',
+    toast_call:             'Calling ',
+    toast_chat:             'Chat started',
+    // Admin
+    adm_title:        'Dashboard',
+    adm_active_prov:  'Active providers',
+    adm_total_books:  'Total bookings',
+    adm_in_review:    'Pending review',
+    adm_rating:       'Avg. rating',
+    adm_approve:      'Approve',
+    adm_reject:       'Reject',
+    adm_suspend:      'Suspend',
+    adm_reactivate:   'Reactivate',
+    adm_view:         'View details',
+    adm_new_badge:    'NEW',
+    adm_tab_all:      'All',
+    adm_tab_review:   'Pending review',
+    adm_tab_suspended:'Suspended',
+    adm_tab_active:   'Active',
+    adm_cat_new:      'New category',
+    adm_cat_save:     'Save category',
+    adm_cat_cancel:   'Cancel',
+    adm_cat_name:     'Display name',
+    adm_cat_id:       'Internal ID (no spaces)',
+    adm_cat_icon:     'Icon (emoji)',
+    adm_cat_desc:     'Short description',
+    adm_cat_active:   'Active',
+    adm_cat_total:    'Total',
+    // Provider app
+    prov_online:      'Available now',
+    prov_offline:     'Currently unavailable',
+    prov_toggle_on:   'You\'re live — clients can now find you',
+    prov_toggle_off:  'You\'re offline — no new requests will come in',
+    prov_requests:    'New requests',
+    prov_no_requests: 'No new requests at the moment',
+    prov_accept:      'Accept job',
+    prov_reject_req:  'Decline request',
+    prov_earnings:    'Earnings',
+    prov_today:       'Today',
+    prov_this_month:  'This month',
+    prov_tab_home:    'Home',
+    prov_tab_agenda:  'My schedule',
+    prov_tab_earnings:'Earnings',
+    prov_tab_profile: 'Profile',
+    // Registration
+    reg_country:      'Which country do you work in?',
+    reg_type:         'How would you like to sign up?',
+    reg_basic:        'Tell us about you',
+    reg_phone:        'Verify your number',
+    reg_services:     'What services do you provide?',
+    reg_schedule:     'Set your availability',
+    reg_docs:         'Identity verification',
+    reg_location:     'What is your service area?',
+    reg_confirm:      'Your request has been submitted!',
+    btn_continue:     'Continue',
+    btn_back:         'Back',
+    btn_send_otp:     'Send verification code',
+    btn_create:       'Create my account',
+  }
+};
+
+var _lang = localStorage.getItem('chambers-online_lang') || 'es';
+
+function T(key) {
+  return (STRINGS[_lang] && STRINGS[_lang][key]) || (STRINGS['es'] && STRINGS['es'][key]) || key;
+}
+
+function setLang(lang) {
+  _lang = lang;
+  localStorage.setItem('chambers-online_lang', lang);
+  // Re-render static elements with data-i18n attributes
+  document.querySelectorAll('[data-i18n]').forEach(function(el) {
+    var key = el.getAttribute('data-i18n');
+    var attr = el.getAttribute('data-i18n-attr');
+    if (attr) el.setAttribute(attr, T(key));
+    else el.textContent = T(key);
+  });
+  // Update lang toggle buttons
+  document.querySelectorAll('.lang-btn').forEach(function(btn) {
+    btn.classList.toggle('active', btn.dataset.lang === _lang);
+  });
+  // Trigger full re-render if the page has a render function
+  if (typeof renderHome === 'function')     renderHome();
+  if (typeof filterProviders === 'function') filterProviders('');
+  if (typeof buildCategoryChips === 'function') buildCategoryChips();
+  if (typeof renderProviders === 'function' && typeof getProviders === 'function')
+    renderProviders(getProviders().map(mapProvider));
+}
+
+function getLang() { return _lang; }
+// End i18n
+
+// ── Cargar sesión del proveedor desde DB ────────────────────
+function getSession() {
+  const s = DB.session.get();
+  return s && s.providerId ? s : null;
+}
+
+function getCurrentProvider() {
+  const sess = getSession();
+  if (!sess) return null;
+  return DB.providers.getById(sess.providerId);
+}
+
+// ── Solicitudes desde DB ────────────────────────────────────
+function getRequests() {
+  const p = getCurrentProvider();
+  if (!p) return getSeedRequests();
+  return DB.bookings.getByProvider(p.id)
+    .filter(b => b.status === 'pending')
+    .map(b => ({
+      id:       b.id,
+      client:   b.clientName || 'Cliente',
+      avatar:   (b.clientName||'CL').slice(0,2).toUpperCase(),
+      service:  b.service || 'Servicio',
+      date:     b.date || 'Hoy',
+      time:     b.time || '10:00',
+      duration: b.duration || 1,
+      price:    b.price || 0,
+      dist:     b.dist || '—',
+      notes:    b.notes || '',
+      status:   b.status,
+    }));
+}
+
+// Solicitudes demo si no hay sesión
+function getSeedRequests() {
+  return [
+    { id:'req_1', client:'Carlos M.', avatar:'CM', service:'Soldadura estructural', date:'Hoy', time:'15:00', duration:2, price:900, dist:'1.2km', notes:'Para reja exterior de casa. Materiales incluidos.', status:'pending' },
+    { id:'req_2', client:'Ana García', avatar:'AG', service:'Herrería ornamental', date:'Mañana', time:'10:00', duration:3, price:1350, dist:'0.8km', notes:'Barandal de escalera, diseño moderno.', status:'pending' },
+    { id:'req_3', client:'Luis P.', avatar:'LP', service:'Reparación puerta', date:'Vie 27', time:'09:00', duration:1, price:450, dist:'2.3km', notes:'Bisagras rotas, necesita refuerzo.', status:'pending' },
+  ];
+}
+
+let requests = getSeedRequests();
+const daySchedule = {
+  24: [{time:'09:00',status:'free'},{time:'10:00',status:'booked',client:'Marta R.'},{time:'11:00',status:'booked',client:'Marta R.'},{time:'12:00',status:'free'},{time:'13:00',status:'blocked'},{time:'14:00',status:'free'},{time:'15:00',status:'booked',client:'Carlos M.'},{time:'16:00',status:'free'},{time:'17:00',status:'free'}],
+  25: [{time:'09:00',status:'free'},{time:'10:00',status:'booked',client:'Ana G.'},{time:'11:00',status:'booked',client:'Ana G.'},{time:'12:00',status:'booked',client:'Ana G.'},{time:'13:00',status:'free'},{time:'14:00',status:'free'},{time:'15:00',status:'free'},{time:'16:00',status:'free'}],
+};
+function getPayouts() {
+  const p = getCurrentProvider();
+  if (!p) return getSeedPayouts();
+  return DB.bookings.getByProvider(p.id)
+    .filter(b => b.status === 'completed' || b.status === 'pending_payment')
+    .map(b => ({
+      client:  b.clientName || 'Cliente',
+      service: b.service || 'Servicio',
+      amount:  b.price || 0,
+      status:  b.paymentStatus || 'pending',
+      eta:     b.paymentStatus === 'pending' ? 'Próximas 24h' : null,
+      date:    b.completedAt ? new Date(b.completedAt).toLocaleDateString('es') : 'Reciente',
+    }));
+}
+
+function getSeedPayouts() {
+  return [
+    { client:'Marta R.', service:'Herrería', amount:1200, status:'pending', eta:'Mañana 18:00' },
+    { client:'Jorge H.', service:'Soldadura', amount:800, status:'released', date:'Ayer' },
+    { client:'Ana S.', service:'Herrería', amount:450, status:'released', date:'Hace 3 días' },
+    { client:'Luis P.', service:'Reparación', amount:350, status:'released', date:'Hace 5 días' },
+  ];
+}
+
+const payouts = getSeedPayouts();
+const days = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+const services = ['Herrería','Soldadura','Carpintería metálica','Rejas y puertas','Balcones'];
+let selectedServices = [0,1,3];
+let dayActive = [true,true,true,true,true,false,false];
+
+function showTab(tab) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+tab).classList.add('active');
+  window.scrollTo(0,0);
+  if(tab==='home') renderHome();
+  if(tab==='agenda') renderAgenda();
+  if(tab==='earnings') renderEarnings();
+  if(tab==='profile') renderProfile();
+}
+
+function buildKPIs() {
+  const p = getCurrentProvider();
+  const bks = p ? DB.bookings.getByProvider(p.id) : [];
+  const today = new Date().toDateString();
+  const todayBks = bks.filter(b => b.createdAt && new Date(b.createdAt).toDateString()===today).length;
+  const monthGMV = bks.filter(b=>b.status==='completed').reduce((s,b)=>s+(b.price||0),0);
+  const displayGMV = monthGMV > 0 ? ('$'+(monthGMV/1000).toFixed(1)+'K') : '$0';
+  const rating = p ? (p.rating||0).toFixed(1) : '—';
+  const kpiEl = document.getElementById('kpi-row');
+  if(kpiEl) kpiEl.innerHTML = `
+    <div class="kpi-card"><div class="kpi-val">${todayBks||3}</div><div class="kpi-label" data-i18n="prov_today">Hoy</div><div class="kpi-delta up">reservas activas</div></div>
+    <div class="kpi-card"><div class="kpi-val">${displayGMV||'$8.4K'}</div><div class="kpi-label" data-i18n="prov_this_month">Este mes</div><div class="kpi-delta up">↑ ganancias</div></div>
+    <div class="kpi-card"><div class="kpi-val">${rating}⭐</div><div class="kpi-label">Rating</div><div class="kpi-delta up">calificación media</div></div>
+  `;
+}
+
+function renderHome() {
+  buildKPIs();
+  document.getElementById('home-content').innerHTML = `
+    <div class="status-toggle-wrap">
+      <div class="status-info">
+        <div class="status-circle ${isOnline?'online':'offline'}" id="status-circle">${isOnline?'🟢':'⚫'}</div>
+        <div class="status-text">
+          <div class="st-title">${isOnline?'Disponible para reservas':'No disponible'}</div>
+          <div class="st-sub">${isOnline?'Los clientes pueden encontrarte':'Oculto en búsquedas'}</div>
+        </div>
+      </div>
+      <div class="toggle-switch ${isOnline?'on':''}" id="status-toggle" onclick="toggleStatus()"><div class="toggle-thumb"></div></div>
+    </div>
+    <div class="kpi-row" id="kpi-row"></div>
+    <div class="section">
+      <div class="section-head">
+        <div class="section-title">Solicitudes pendientes</div>
+        <div class="section-link" onclick="showTab('agenda')">Ver agenda →</div>
+      </div>
+      <div id="requests-list">
+        ${renderRequests()}
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-head">
+        <div class="section-title">Pagos próximos</div>
+        <div class="section-link" onclick="showTab('earnings')">Ver todos →</div>
+      </div>
+      <div class="payout-list">
+        ${getPayouts().filter(p=>p.status==='pending').map(p=>`
+          <div class="payout-item">
+            <div class="payout-icon pending">⏳</div>
+            <div class="payout-info">
+              <div class="payout-title">${p.service} · ${p.client}</div>
+              <div class="payout-sub">Liberación: ${p.eta}</div>
+            </div>
+            <div class="payout-amount pending">$${p.amount}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function renderRequests() {
+  requests = getRequests(); const pending = requests.filter(r=>r.status==='pending');
+  if(!pending.length) return '<div class="empty-state"><div class="empty-icon">✅</div><div class="empty-title">Sin solicitudes pendientes</div><div class="empty-sub">Estás al día</div></div>';
+  return pending.map(r=>`
+    <div class="request-card" id="req-${r.id}">
+      <div class="rc-top">
+        <div class="rc-avatar">${r.avatar}</div>
+        <div class="rc-info">
+          <div class="rc-name">${r.client}</div>
+          <div class="rc-meta">${r.service} · ${r.dist}</div>
+        </div>
+        <div class="rc-time">${r.date}<br>${r.time}</div>
+      </div>
+      <div class="rc-detail">
+        <div class="rc-detail-row"><span class="rc-dlabel">Duración</span><span class="rc-dval">${r.duration}h</span></div>
+        <div class="rc-detail-row"><span class="rc-dlabel">Precio</span><span class="rc-dval" style="color:var(--accent);font-weight:700">$${r.price} MXN</span></div>
+        <div class="rc-detail-row"><span class="rc-dlabel">Nota</span><span class="rc-dval" style="color:var(--muted)">${r.notes}</span></div>
+      </div>
+      <div class="rc-actions">
+        <button class="btn-reject" onclick="rejectRequest(${r.id})">✕ Rechazar</button>
+        <button class="btn-accept" onclick="acceptRequest(${r.id})">${T('prov_accept')} — $$${r.price}</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function acceptRequest(id) {
+  requests = requests.map(r => r.id===id ? {...r, status:'accepted'} : r);
+  // Persist to DB if it's a real booking
+  const bk = DB.bookings.getById(id);
+  if (bk) {
+    DB.bookings.save({...bk, status:'confirmed', confirmedAt: DB.now()});
+    DB.analytics.track('booking_confirmed', { bookingId: id, providerId: bk.providerId });
+  }
+  showToast('✓ Solicitud aceptada. El cliente fue notificado.');
+  renderHome();
+}
+function rejectRequest(id) {
+  requests = requests.map(r => r.id===id ? {...r, status:'rejected'} : r);
+  const bk = DB.bookings.getById(id);
+  if (bk) {
+    DB.bookings.save({...bk, status:'cancelled_by_provider', cancelledAt: DB.now()});
+    DB.analytics.track('booking_rejected', { bookingId: id });
+  }
+  showToast('Solicitud rechazada.');
+  renderHome();
+}
+
+function toggleStatus() {
+  isOnline = !isOnline;
+  const p = getCurrentProvider();
+  if (p) {
+    DB.providers.save({...p, isOnline, updatedAt: DB.now()});
+    DB.analytics.track('provider_status_toggle', { providerId: p.id, isOnline });
+  }
+  renderHome();
+  showToast(isOnline ? T('prov_toggle_on') : T('prov_toggle_off'));
+}
+
+function renderAgenda() {
+  const now = new Date();
+  const year = now.getFullYear(), month = now.getMonth();
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  const months = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const booked = [10,15,18,22,24,25];
+  let calCells = '';
+  for(let i=0;i<firstDay;i++) calCells += '<div class="cal-day empty"></div>';
+  for(let d=1;d<=daysInMonth;d++) {
+    const isToday = d===now.getDate();
+    const isSelected = d===selectedCalDay;
+    const hasBk = booked.includes(d);
+    calCells += `<div class="cal-day ${isToday?'today':''} ${isSelected?'selected':''} ${hasBk?'has-bookings':''}" onclick="selectDay(${d})">${d}</div>`;
+  }
+  const schedule = daySchedule[selectedCalDay] || [{time:'09:00',status:'free'},{time:'10:00',status:'free'},{time:'14:00',status:'free'},{time:'15:00',status:'free'}];
+  document.getElementById('agenda-content').innerHTML = `
+    <div class="section">
+      <div class="cal-header">
+        <div class="cal-nav" onclick="showToast('Mes anterior')">‹</div>
+        <div class="cal-month">${months[month]} ${year}</div>
+        <div class="cal-nav" onclick="showToast('Mes siguiente')">›</div>
+      </div>
+      <div class="cal-grid">
+        ${days.map(d=>`<div class="cal-day-label">${d}</div>`).join('')}
+        ${calCells}
+      </div>
+    </div>
+    <div class="time-slots-wrap">
+      <div class="time-slots-title">Día ${selectedCalDay} · ${months[month]}</div>
+      <div class="time-slots-grid">
+        ${schedule.map(s=>`
+          <div class="ts-slot ${s.status}" onclick="${s.status==='free'?`blockSlot('${s.time}')`:s.status==='booked'?`showToast('Reserva de ${s.client}')`:''}" title="${s.status==='booked'?s.client:s.status==='blocked'?'Bloqueado':'Disponible'}">
+            ${s.time}<br><span style="font-size:10px;opacity:0.7">${s.status==='booked'?s.client.split(' ')[0]:s.status==='blocked'?'🔒':'libre'}</span>
+          </div>
+        `).join('')}
+      </div>
+      <div class="legend-row">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--accent-light);border:1px solid var(--accent)"></div>Libre</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--amber-light);border:1px solid var(--amber)"></div>Reservado</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--surface2)"></div>Bloqueado</div>
+      </div>
+      <button class="btn-save" style="margin-top:16px" onclick="showToast('Horario guardado para el día ${selectedCalDay}')">+ Agregar disponibilidad</button>
+    </div>
+  `;
+}
+
+function selectDay(d) { selectedCalDay = d; renderAgenda(); }
+function blockSlot(time) { showToast('Slot ' + time + ' bloqueado'); renderAgenda(); }
+
+function renderEarnings() {
+  document.getElementById('earnings-content').innerHTML = `
+    <div class="earnings-header">
+      <div class="eh-label">Ganancias este mes</div>
+      <div class="eh-amount">$8,400</div>
+      <div class="eh-sub">23 servicios completados · 15% plataforma deducido</div>
+    </div>
+    <div class="earnings-grid">
+      <div class="earn-card"><div class="earn-val">$2,100</div><div class="earn-label">En escrow</div></div>
+      <div class="earn-card"><div class="earn-val">$6,300</div><div class="earn-label">Liberado</div></div>
+      <div class="earn-card"><div class="earn-val">$42,000</div><div class="earn-label">Acumulado año</div></div>
+      <div class="earn-card"><div class="earn-val">$365/d</div><div class="earn-label">Promedio diario</div></div>
+    </div>
+    <div class="section">
+      <div class="section-title" style="margin-bottom:14px">Pagos recientes</div>
+      <div class="payout-list">
+        ${getPayouts().map(p=>`
+          <div class="payout-item">
+            <div class="payout-icon ${p.status}">${p.status==='pending'?'⏳':'✅'}</div>
+            <div class="payout-info">
+              <div class="payout-title">${p.service} · ${p.client}</div>
+              <div class="payout-sub">${p.status==='pending'?'Liberación: '+p.eta:p.date}</div>
+            </div>
+            <div class="payout-amount ${p.status}">$${p.amount}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function renderProfile() {
+  document.getElementById('profile-content').innerHTML = `
+    <div class="form-section" style="text-align:center;margin-bottom:16px">
+      <div style="width:72px;height:72px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;color:#fff;font-size:26px;font-family:var(--font-head);font-style:italic;margin:0 auto 12px">JM</div>
+      <div style="font-family:var(--font-head);font-size:22px;font-style:italic;margin-bottom:4px">Juan Martínez</div>
+      <div style="color:var(--muted);font-size:13px;margin-bottom:12px">Herrero independiente · CDMX</div>
+      <div class="verified-badge">✓ Identidad verificada</div>
+    </div>
+    <div class="form-section">
+      <div class="form-section-title">Información básica</div>
+      <div class="form-group"><label class="form-label">Nombre completo</label><input class="form-input" value="Juan Martínez López"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Teléfono</label><input class="form-input" value="+52 55 1234 5678"></div>
+        <div class="form-group"><label class="form-label">Email</label><input class="form-input" value="juan@oficio.mx"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Descripción profesional</label><textarea class="form-input form-textarea">Herrero independiente con 5 años de experiencia en rejas, puertas y balcones.</textarea></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Precio por hora (MXN)</label><input class="form-input" type="number" value="300"></div>
+        <div class="form-group"><label class="form-label">Años de experiencia</label><input class="form-input" type="number" value="5"></div>
+      </div>
+    </div>
+    <div class="form-section">
+      <div class="form-section-title">Servicios que ofreces</div>
+      <div class="chip-select">
+        ${services.map((s,i)=>`<div class="chip ${selectedServices.includes(i)?'selected':''}" onclick="toggleService(${i},this)">${s}</div>`).join('')}
+      </div>
+    </div>
+    <div class="form-section">
+      <div class="form-section-title">Horario semanal</div>
+      <div class="schedule-grid" style="margin-bottom:8px;font-size:11px;color:var(--muted);font-weight:600">
+        <div></div><div>Inicio</div><div>Fin</div>
+      </div>
+      ${['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'].map((d,i)=>`
+        <div class="schedule-grid" style="margin-bottom:8px">
+          <div style="display:flex;align-items:center;gap:6px">
+            <div class="toggle-day ${dayActive[i]?'on':''}" onclick="toggleDay(${i},this)">${dayActive[i]?'✓':''}</div>
+            <span class="day-label">${d}</span>
+          </div>
+          <input class="time-input" type="time" value="${dayActive[i]?'09:00':'--:--'}" ${!dayActive[i]?'disabled':''}>
+          <input class="time-input" type="time" value="${dayActive[i]?'18:00':'--:--'}" ${!dayActive[i]?'disabled':''}>
+        </div>
+      `).join('')}
+    </div>
+    <button class="btn-save" onclick="showToast('✓ Perfil guardado correctamente')">Guardar cambios</button>
+    <div style="height:20px"></div>
+  `;
+}
+
+function toggleService(idx, el) {
+  if(selectedServices.includes(idx)) { selectedServices = selectedServices.filter(i=>i!==idx); el.classList.remove('selected'); }
+  else { selectedServices.push(idx); el.classList.add('selected'); }
+}
+function toggleDay(idx, el) {
+  dayActive[idx] = !dayActive[idx];
+  el.classList.toggle('on', dayActive[idx]);
+  el.textContent = dayActive[idx] ? '✓' : '';
+  renderProfile();
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── Init ─────────────────────────────────────────────────────
+// Auto-login: if a provider completed registration, pick their session
+(function autoLogin() {
+  const sess = DB.session.get();
+  if (!sess || !sess.providerId) {
+    // Demo mode: pick first active provider as "current user"
+    const active = DB.providers.getAll().find(p => p.status === 'active' || p.status === 'review');
+    if (active) DB.session.set({ providerId: active.id, role: 'provider' });
+  }
+})();
+
+document.querySelectorAll('.lang-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.lang === getLang()); });
+renderHome();
+
+// Sync: refresh when bookings change from cliente.html
+window.addEventListener('db:change', function(e) {
+  if (!e.detail) return;
+  if (e.detail.key === 'chambers-online_bookings') {
+    requests = getRequests();
+    const active = document.querySelector('.screen.active');
+    if (active && active.id === 'screen-home') renderHome();
+    if (requests.filter(r=>r.status==='pending').length > 0) {
+      showToast('🔔 Nueva solicitud de reserva recibida');
+    }
+  }
+  if (e.detail.key === 'chambers-online_providers') {
+    const active = document.querySelector('.screen.active');
+    if (active && active.id === 'screen-home') renderHome();
+  }
+});
+</script>
+</body>
+</html>

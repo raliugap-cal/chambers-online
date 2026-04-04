@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chambers-online &mdash; Registro de Proveedor</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#09090c;--surface:#111115;--surface2:#1c1c22;--surface3:#252530;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);--text:#eeeef0;--muted:#555562;--accent:#c8f542;--accent-dim:rgba(200,245,66,.10);--accent-dark:#9ec229;--bacc:rgba(200,245,66,.35);--blue:#4a9eff;--blue-dim:rgba(74,158,255,.10);--red:#ff5a5a;--red-dim:rgba(255,90,90,.10);--green:#3dd68c;--green-dim:rgba(61,214,140,.10);--amber:#f5a623;--amber-dim:rgba(245,166,35,.10);--fh:'Syne',sans-serif;--fb:'DM Sans',sans-serif;--r:16px;--rs:10px}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100vh}
+body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:15px;line-height:1.55}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:290px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);padding:28px 24px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
+.main{flex:1;overflow-y:auto}
+.main-inner{max-width:640px;width:100%;margin:0 auto;padding:40px 32px}
+.logo{font-family:var(--fh);font-size:20px;font-weight:800;margin-bottom:32px;color:var(--text)}
+.logo span{color:var(--accent)}
+.snav-item{display:flex;gap:11px;align-items:flex-start;padding:8px 9px;border-radius:var(--rs);cursor:pointer;transition:background .2s;margin-bottom:1px}
+.snav-item.disabled{opacity:.3;pointer-events:none}
+.snav-item:hover:not(.disabled){background:rgba(255,255,255,.03)}
+.snav-bullet{width:24px;height:24px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;border:1.5px solid var(--border2);color:var(--muted);background:var(--surface2);transition:all .3s;font-family:var(--fh);margin-top:1px}
+.snav-item.done .snav-bullet{background:var(--accent-dim);border-color:var(--bacc);color:var(--accent)}
+.snav-item.active .snav-bullet{background:var(--accent);border-color:var(--accent);color:#000}
+.snav-label{font-size:12px;font-weight:500;color:var(--muted);line-height:1.3}
+.snav-item.active .snav-label{color:var(--text);font-weight:600}
+.snav-item.done .snav-label{color:var(--accent)}
+.snav-sub{font-size:10px;color:var(--muted);margin-top:1px}
+.snav-conn{width:1px;height:10px;background:var(--border);margin:0 0 0 20px}
+.sb-footer{margin-top:auto;padding-top:18px;border-top:1px solid var(--border)}
+.ti{display:flex;gap:7px;align-items:center;font-size:11px;color:var(--muted);margin-bottom:7px}
+.tic{width:17px;height:17px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0}
+.sblink{font-size:11px;color:var(--muted);margin-top:10px}
+.sblink a{color:var(--accent);cursor:pointer}
+.prog-wrap{margin-bottom:32px}
+.prog-bg{height:3px;background:var(--surface3);border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .5s}
+.prog-lbl{font-size:11px;color:var(--muted);margin-top:6px;font-family:var(--fh);letter-spacing:.05em}
+.step-h{font-family:var(--fh);font-size:26px;font-weight:800;line-height:1.15;margin-bottom:7px}
+.step-h span{color:var(--accent)}
+.step-d{color:var(--muted);font-size:14px;margin-bottom:26px;line-height:1.65}
+.country-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin-bottom:24px}
+.cc{background:var(--surface);border:1.5px solid var(--border2);border-radius:var(--r);padding:14px 8px;cursor:pointer;transition:all .25s;text-align:center;position:relative}
+.cc:hover{border-color:var(--bacc)}
+.cc.sel{border-color:var(--accent);background:var(--accent-dim)}
+.cc.sel::after{content:'ok';position:absolute;top:5px;right:7px;font-size:9px;font-weight:700;color:var(--accent);background:var(--accent-dim);border:1px solid var(--bacc);width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.cc-flag{font-size:26px;margin-bottom:6px;display:block}
+.cc-name{font-size:10px;font-weight:600;color:var(--muted);line-height:1.3}
+.cc.sel .cc-name{color:var(--accent)}
+.cbanner{background:var(--surface2);border:1.5px solid var(--border2);border-radius:var(--rs);padding:13px 15px;margin-bottom:20px;display:flex;align-items:flex-start;gap:11px}
+.cb-flag{font-size:22px;flex-shrink:0}
+.cb-title{font-size:13px;font-weight:600;margin-bottom:4px}
+.cb-chips{display:flex;flex-wrap:wrap;gap:6px}
+.cbc{background:var(--surface3);border:1px solid var(--border);border-radius:20px;padding:2px 10px;font-size:11px;font-weight:500;color:var(--muted)}
+.cbc.a{background:var(--accent-dim);border-color:var(--bacc);color:var(--accent)}
+.type-cards{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:22px}
+.tc{background:var(--surface);border:1.5px solid var(--border2);border-radius:var(--r);padding:18px 15px;cursor:pointer;transition:all .25s;position:relative;overflow:hidden}
+.tc:hover{border-color:var(--bacc)}
+.tc.sel{border-color:var(--accent);background:var(--accent-dim)}
+.tc.sel::after{content:'check';position:absolute;top:9px;right:11px;font-size:9px;font-weight:700;color:var(--accent);background:var(--accent-dim);border:1px solid var(--bacc);width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.tc-icon{font-size:28px;margin-bottom:9px;display:block}
+.tc-title{font-family:var(--fh);font-size:14px;font-weight:700;margin-bottom:3px}
+.tc-desc{font-size:11px;color:var(--muted);line-height:1.5}
+.tc-docs{margin-top:9px;display:flex;flex-direction:column;gap:3px}
+.tcd{font-size:10px;color:var(--muted);display:flex;align-items:center;gap:4px}
+.tdot{width:3px;height:3px;border-radius:50%;background:var(--accent);flex-shrink:0}
+.fg{margin-bottom:15px}
+.fl{font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;display:flex;align-items:center;gap:5px;letter-spacing:.05em;text-transform:uppercase;font-family:var(--fh)}
+.opt{background:var(--surface3);border:1px solid var(--border);color:var(--muted);font-size:10px;padding:1px 7px;border-radius:20px;text-transform:lowercase;letter-spacing:0;font-family:var(--fb);font-weight:400}
+.fi{width:100%;background:var(--surface);border:1.5px solid var(--border2);border-radius:var(--rs);padding:11px 14px;color:var(--text);font-family:var(--fb);font-size:14px;outline:none;transition:all .2s}
+.fi:focus{border-color:var(--accent);background:var(--surface2);box-shadow:0 0 0 3px var(--accent-dim)}
+.fi::placeholder{color:var(--muted)}
+.fi:disabled{opacity:.35;cursor:not-allowed}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.fta{min-height:78px;resize:vertical}
+.fsel{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' fill='none' stroke='%23555562' stroke-width='1.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:34px;cursor:pointer}
+.cc-count{font-size:11px;color:var(--muted);text-align:right;margin-top:3px}
+.ih{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.5}
+.pw{position:relative}
+.pp{position:absolute;left:0;top:0;bottom:0;display:flex;align-items:center;padding:0 11px;font-size:13px;font-weight:600;color:var(--text);background:var(--surface2);border-radius:var(--rs) 0 0 var(--rs);border-right:1px solid var(--border2);white-space:nowrap;gap:4px}
+.pw .fi{padding-left:90px}
+.doc-list{display:flex;flex-direction:column;gap:8px;margin-bottom:18px}
+.di{display:flex;align-items:center;gap:11px;background:var(--surface2);border:1.5px solid var(--border2);border-radius:var(--rs);padding:12px;cursor:pointer;transition:all .2s}
+.di:hover{border-color:var(--bacc)}
+.di.up{border-color:rgba(61,214,140,.4);background:rgba(61,214,140,.04)}
+.dw{width:36px;height:36px;border-radius:8px;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.dn{font-size:13px;font-weight:600;margin-bottom:1px}
+.dr{font-size:11px;color:var(--muted)}
+.db{flex-shrink:0;font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px}
+.db-r{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(245,166,35,.3)}
+.db-o{background:var(--surface3);color:var(--muted);border:1px solid var(--border)}
+.db-u{background:var(--green-dim);color:var(--green);border:1px solid rgba(61,214,140,.3)}
+.chip-grid{display:flex;flex-wrap:wrap;gap:7px}
+.chip{padding:7px 13px;border-radius:20px;border:1.5px solid var(--border2);background:var(--surface);font-size:13px;font-weight:500;cursor:pointer;color:var(--muted);transition:all .2s}
+.chip:hover{border-color:var(--bacc);color:var(--accent)}
+.chip.sel{background:var(--accent-dim);border-color:var(--bacc);color:var(--accent);font-weight:600}
+.sch-wrap{border:1.5px solid var(--border2);border-radius:var(--r);overflow:hidden}
+.sch-row{display:grid;grid-template-columns:34px 52px 1fr 1fr;align-items:center;border-bottom:1px solid var(--border)}
+.sch-row:last-child{border-bottom:none}
+.st{padding:9px;display:flex;justify-content:center}
+.sd{padding:9px 7px;font-size:12px;font-weight:600;color:var(--muted)}
+.stm{padding:6px 9px}
+.dtog{width:19px;height:19px;border-radius:5px;background:var(--surface2);border:1.5px solid var(--border2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;font-size:10px}
+.dtog.on{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700}
+.tin{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text);font-family:var(--fb);font-size:12px;outline:none;transition:border-color .2s}
+.tin:focus{border-color:var(--accent)}
+.tin:disabled{opacity:.3;cursor:not-allowed}
+.otp-inputs{display:flex;gap:8px;justify-content:center;margin:16px 0}
+.oi{width:48px;height:54px;background:var(--surface2);border:1.5px solid var(--border2);border-radius:var(--rs);text-align:center;font-size:21px;font-weight:700;color:var(--text);font-family:var(--fh);outline:none;transition:all .2s}
+.oi:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim)}
+.oi.f{border-color:var(--accent)}
+.otp-timer{text-align:center;font-size:12px;color:var(--muted);margin-top:5px}
+.pt-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:14px}
+.ptb{padding:9px;border-radius:var(--rs);border:1.5px solid var(--border2);background:var(--surface);text-align:center;cursor:pointer;transition:all .2s}
+.ptb.sel{border-color:var(--accent);background:var(--accent-dim)}
+.pti{font-size:16px;margin-bottom:2px}
+.ptl{font-size:11px;font-weight:600;color:var(--muted)}
+.ptb.sel .ptl{color:var(--accent)}
+.map-mock{background:var(--surface2);border:1.5px solid var(--border2);border-radius:var(--r);height:140px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;cursor:pointer;margin-bottom:11px;transition:border-color .2s}
+.map-mock:hover{border-color:var(--bacc)}
+.mgb{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:28px 28px}
+.mpin{font-size:24px;position:relative;z-index:1}
+.mring{position:absolute;width:80px;height:80px;border-radius:50%;border:2px solid rgba(200,245,66,.3);background:rgba(200,245,66,.05)}
+.mlbl{position:absolute;bottom:9px;left:50%;transform:translateX(-50%);background:var(--accent);color:#000;font-size:10px;font-weight:700;padding:3px 11px;border-radius:20px;white-space:nowrap;font-family:var(--fh)}
+.rad-sel{display:flex;gap:5px;flex-wrap:wrap}
+.rb{padding:6px 12px;border-radius:20px;border:1.5px solid var(--border2);background:var(--surface);font-size:12px;font-weight:500;cursor:pointer;color:var(--muted);transition:all .2s}
+.rb.sel{border-color:var(--bacc);background:var(--accent-dim);color:var(--accent)}
+.alert{border-radius:var(--rs);padding:11px 13px;font-size:13px;line-height:1.6;display:flex;gap:8px;align-items:flex-start;margin-bottom:16px}
+.a-info{background:var(--blue-dim);border:1px solid rgba(74,158,255,.25);color:#7ab8ff}
+.a-warn{background:var(--amber-dim);border:1px solid rgba(245,166,35,.25);color:var(--amber)}
+.a-ok{background:var(--green-dim);border:1px solid rgba(61,214,140,.25);color:var(--green)}
+.ai{font-size:14px;flex-shrink:0;margin-top:1px}
+.divider{height:1px;background:var(--border);margin:20px 0}
+.status-wrap{text-align:center;max-width:430px;margin:0 auto;padding:30px 0}
+.sicon{width:74px;height:74px;border-radius:50%;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;font-size:32px;background:var(--amber-dim);border:2px solid rgba(245,166,35,.3)}
+.stitle{font-family:var(--fh);font-size:24px;font-weight:800;margin-bottom:8px}
+.sdesc{color:var(--muted);font-size:14px;line-height:1.7;margin-bottom:26px}
+.tl{display:flex;flex-direction:column;text-align:left;margin-bottom:24px}
+.tlr{display:flex;gap:12px;position:relative}
+.tlr:not(:last-child)::after{content:'';position:absolute;left:11px;top:26px;width:1px;height:calc(100% - 4px);background:var(--border2)}
+.tli{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;margin-top:2px;z-index:1}
+.tli.d{background:var(--accent);color:#000;font-weight:700}
+.tli.a{background:var(--amber-dim);border:2px solid var(--amber);color:var(--amber);animation:ptl 2s infinite}
+.tli.p{background:var(--surface3);border:1.5px solid var(--border2);color:var(--muted)}
+@keyframes ptl{0%,100%{box-shadow:0 0 0 0 rgba(245,166,35,.5)}50%{box-shadow:0 0 0 6px rgba(245,166,35,0)}}
+.tlb{padding-bottom:16px}
+.tlt{font-size:13px;font-weight:600;margin-bottom:2px}
+.tlt.d{color:var(--accent)}.tlt.a{color:var(--amber)}.tlt.p{color:var(--muted)}
+.tls{font-size:11px;color:var(--muted)}
+.btn-group{display:flex;gap:8px;margin-top:26px}
+.bbk{padding:12px 20px;border-radius:var(--rs);border:1.5px solid var(--border2);background:transparent;color:var(--muted);font-size:14px;font-weight:500;cursor:pointer;font-family:var(--fb);transition:all .2s;display:flex;align-items:center;gap:6px}
+.bbk:hover{border-color:var(--bacc);color:var(--text)}
+.bnx{flex:1;padding:12px 22px;border-radius:var(--rs);border:none;background:var(--accent);color:#000;font-size:15px;font-weight:700;cursor:pointer;font-family:var(--fh);transition:all .25s;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.bnx:hover{background:var(--accent-dark);transform:translateY(-1px);box-shadow:0 8px 20px rgba(200,245,66,.2)}
+.bnx:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+.bfl{width:100%;justify-content:center;gap:8px}
+.bsk{display:block;text-align:center;font-size:12px;color:var(--muted);cursor:pointer;margin-top:9px;background:none;border:none;font-family:var(--fb);width:100%;transition:color .2s}
+.bsk:hover{color:var(--text)}
+.screen{display:none}.screen.active{display:block}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface3);border:1px solid var(--border2);border-radius:50px;padding:11px 22px;font-size:13px;font-weight:500;z-index:999;transition:transform .3s;white-space:nowrap;display:flex;align-items:center;gap:7px}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.success{border-color:rgba(200,245,66,.4);color:var(--accent)}
+.toast.error{border-color:rgba(255,90,90,.4);color:var(--red)}
+@media(max-width:820px){.sidebar{display:none}.main-inner{padding:22px 16px}.country-grid{grid-template-columns:repeat(3,1fr)}.fr{grid-template-columns:1fr}.type-cards{grid-template-columns:1fr}}
+
+.lang-toggle{display:flex;gap:4px;background:var(--surface3);border-radius:20px;padding:3px;border:1px solid var(--border);margin-bottom:20px;width:fit-content;}
+.lang-btn{padding:5px 14px;border-radius:16px;font-size:12px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--muted);font-family:var(--font-body);transition:all .2s;}
+.lang-btn.active{background:var(--accent);color:#000;}
+</style>
+
+<script src="/_env.js"></script>
+<script src="/db-client.js"></script>
+</head>
+<body>
+
+<div class="layout">
+<div class="sidebar">
+  <div class="logo">Chambers<span>-online</span></div>
+  <div id="snav"></div>
+  <div class="sb-footer">
+    <div class="lang-toggle"><button class="lang-btn active" data-lang="es" onclick="setLang('es')">ES</button><button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button></div>
+    <div class="ti"><div class="tic" style="background:var(--green-dim)">&#128274;</div>Datos cifrados AES-256</div>
+    <div class="ti"><div class="tic" style="background:var(--blue-dim)">&#10003;</div>Verificaci&#243;n en &lt;24 horas</div>
+    <div class="ti"><div class="tic" style="background:var(--accent-dim)">&#128176;</div>Sin costo de registro</div>
+    <div class="ti"><div class="tic" style="background:var(--amber-dim)">&#127758;</div>Soporte en 5 pa&#237;ses</div>
+    <div class="sblink">&#191;Ya tienes cuenta? <a>Inicia sesi&#243;n &#8594;</a></div>
+  </div>
+</div>
+<div class="main"><div class="main-inner">
+
+<!-- S0 COUNTRY -->
+<div class="screen active" id="s0">
+  <div class="prog-wrap"><div class="prog-bg"><div class="prog-fill" style="width:0%"></div></div><div class="prog-lbl">PASO 1 DE 8 &middot; PA&#205;S DE OPERACI&#211;N</div></div>
+  <div class="step-h">&#191;En qu&#233; <span>pa&#237;s</span> operas?</div>
+  <div class="step-d">Selecciona el pa&#237;s donde prestar&#225;s tus servicios. Los documentos, moneda y zona horaria se configuran autom&#225;ticamente.</div>
+  <div class="country-grid">
+    <div class="cc" id="cc-mx" onclick="selCountry('mx')"><span class="cc-flag">&#127474;&#127480;</span><div class="cc-name">M&#233;xico</div></div>
+    <div class="cc" id="cc-us" onclick="selCountry('us')"><span class="cc-flag">&#127482;&#127480;</span><div class="cc-name">Estados Unidos</div></div>
+    <div class="cc" id="cc-do" onclick="selCountry('do')"><span class="cc-flag">&#127465;&#127476;</span><div class="cc-name">Rep. Dominicana</div></div>
+    <div class="cc" id="cc-co" onclick="selCountry('co')"><span class="cc-flag">&#127464;&#127476;</span><div class="cc-name">Colombia</div></div>
+    <div class="cc" id="cc-sv" onclick="selCountry('sv')"><span class="cc-flag">&#127480;&#127483;</span><div class="cc-name">El Salvador</div></div>
+  </div>
+  <div id="cbanner-wrap"></div>
+  <div class="btn-group"><button class="bnx" id="btn-s0" disabled onclick="goTo(1)"><span data-i18n="btn_continue">Continuar</span><span>&#8594;</span></button></div>
+</div>
+
+<!-- S1 TYPE -->
+<div class="screen" id="s1">
+  <div class="prog-wrap"><div class="prog-bg"><div class="prog-fill" style="width:12%"></div></div><div class="prog-lbl">PASO 2 DE 8 &middot; TIPO DE CUENTA</div></div>
+  <div class="step-h">&#191;C&#243;mo quieres <span>registrarte?</span></div>
+  <div class="step-d" id="s1d">Elige el tipo de cuenta seg&#250;n tu situaci&#243;n. Los documentos cambiar&#225;n seg&#250;n tu selecci&#243;n.</div>
+  <div class="type-cards" id="tcards"></div>
+  <div class="btn-group"><button class="bbk" onclick="goTo(0)" data-i18n="btn_back">&#8592; Atrás</button><button class="bnx" id="btn-s1" disabled onclick="goTo(2)"><span data-i18n="btn_continue">Continuar</span><span>&#8594;</span></button></div>
+</div>
+
+<!-- S2 BASIC INFO -->
+<div class="screen" id="s2">
+  <div class="prog-wrap"><div class="prog-bg"><div class="prog-fill" style="width:25%"></div></div><div class="prog-lbl" id="s2pl">PASO 3 DE 8 &middot; INFORMACI&#211;N B&#193;SICA</div></div>
+  <div class="step-h" id="s2h">Cu&#233;ntanos sobre <span>ti</span></div>
+  <div class="step-d">Esta informaci&#243;n aparecer&#225; en tu perfil p&#250;blico. S&#233; espec&#237;fico para generar m&#225;s confianza.</div>
+  <div id="s2fields"></div>
+  <div class="btn-group"><button class="bbk" onclick="goTo(1)">&#8592; Atr&#225;s</button><button class="bnx" id="btn-s2" disabled onclick="goTo(3)"><span data-i18n="btn_continue">Continuar</span><span>&#8594;</span></button></div>
+</div>
+
+<!-- S3 PHONE -->
+<div class="screen" id="s3">
+  <div class="prog-wrap"><div class="prog-bg"><div class="prog-fill" style="width:37%"></div></div><div class="prog-lbl">PASO 4 DE 8 &middot; VERIFICACI&#211;N DE TEL&#201;FONO</div></div>
+  <div class="step-h" data-i18n="reg_phone">Verifica tu <span>tel&#233;fono</span></div>
+  <div class="step-d">Enviamos un c&#243;digo de 6 d&#237;gitos por SMS. Este n&#250;mero tambi&#233;n se usa como segundo factor.</div>
+  <div id="phone-entry">
+    <div class="fg"><label class="fl">N&#250;mero de tel&#233;fono</label>
+      <div class="pw"><div class="pp" id="ppfx">&#127474;&#127480; +52</div><input class="fi" type="tel" id="phonein" placeholder="55 1234 5678" oninput="onPhIn(this)" style="padding-left:92px"></div>
+      <div class="ih" id="phhint">10 d&#237;gitos sin c&#243;digo de pa&#237;s</div>
+    </div>
+    <button class="bnx bfl" id="btn-otp" disabled onclick="sendOTP()" style="margin-top:4px"><span>Enviar c&#243;digo SMS</span><span>&#128241;</span></button>
+  </div>
+  <div id="otp-entry" style="display:none">
+    <div style="text-align:center;font-size:13px;color:var(--muted);margin-bottom:4px">C&#243;digo enviado a <strong id="otpdisp" style="color:var(--text)"></strong></div>
+    <div class="otp-inputs"><input class="oi" maxlength="1" type="text" inputmode="numeric" oninput="mvOTP(this,0)" id="o0"><input class="oi" maxlength="1" type="text" inputmode="numeric" oninput="mvOTP(this,1)" id="o1"><input class="oi" maxlength="1" type="text" inputmode="numeric" oninput="mvOTP(this,2)" id="o2"><input class="oi" maxlength="1" type="text" inputmode="numeric" oninput="mvOTP(this,3)" id="o3"><input class="oi" maxlength="1" type="text" inputmode="numeric" oninput="mvOTP(this,4)" id="o4"><input class="oi" maxlength="1" type="text" inputmode="numeric" oninput="mvOTP(this,5)" id="o5"></div>
+    <div class="otp-timer" id="otptimer">Reenviar en 59s</div>
+    <button class="bsk" id="resend-btn" style="display:none;color:var(--accent)" onclick="sendOTP()">Reenviar c&#243;digo</button>
+    <div class="btn-group" id="otp-next" style="display:none"><button class="bbk" onclick="rstPhone()">&#8592; Cambiar n&#250;mero</button><button class="bnx" onclick="goTo(4)"><span>Verificado &mdash; Continuar</span><span>&#8594;</span></button></div>
+  </div>
+  <div class="btn-group" id="ph-back"><button class="bbk" onclick="goTo(2)">&#8592; Atr&#225;s</button></div>
+</div>
+
+<!-- S4 SERVICES -->
+<div class="screen" id="s4">
+  <div class="prog-wrap"><div class="prog-bg"><div class="prog-fill" style="width:50%"></div></div><div class="prog-lbl">PASO 5 DE 8 &middot; SERVICIOS Y PRECIOS</div></div>
+  <div class="step-h">&#191;Qu&#233; <span>servicios</span> ofreces?</div>
+  <div class="step-d">Selecciona al menos una categor&#237;a. Los precios en la moneda de tu pa&#237;s.</div>
+  <div class="fg"><label class="fl">Categor&#237;as <span style="color:var(--red)">*</span></label><div class="chip-grid" id="svchips"></div><div class="ih" id="svchint" style="margin-top:8px">Selecciona al menos una categor&#237;a</div></div>
+  <div class="divider"></div>
+  <div class="fg"><label class="fl">Tipo de precio</label>
+    <div class="pt-grid"><div class="ptb sel" id="pt-hourly" onclick="selPT('hourly')"><div class="pti">&#9201;&#65039;</div><div class="ptl">Por hora</div></div><div class="ptb" id="pt-fixed" onclick="selPT('fixed')"><div class="pti">&#127991;&#65039;</div><div class="ptl">Precio fijo</div></div><div class="ptb" id="pt-quote" onclick="selPT('quote')"><div class="pti">&#128172;</div><div class="ptl">Cotizaci&#243;n</div></div></div>
+  </div>
+  <div class="fr">
+    <div class="fg"><label class="fl" id="prlbl">Precio / hora</label><div class="pw"><div class="pp" id="curpfx" style="min-width:48px">$</div><input class="fi" type="number" id="prval" placeholder="350" min="0" oninput="valS4()" style="padding-left:60px"></div></div>
+    <div class="fg"><label class="fl">Precio m&#237;nimo</label><div class="pw"><div class="pp" id="curpfx2" style="min-width:48px">$</div><input class="fi" type="number" id="prmin" placeholder="800" min="0" style="padding-left:60px"></div></div>
+  </div>
+  <div class="fg"><label class="fl">Duraci&#243;n por defecto</label><select class="fi fsel" id="dur"><option value="30">30 minutos</option><option value="60" selected>1 hora</option><option value="90">1.5 horas</option><option value="120">2 horas</option><option value="180">3 horas</option><option value="240">4 horas</option></select></div>
+  <div class="btn-group"><button class="bbk" onclick="goTo(3)">&#8592; Atr&#225;s</button><button class="bnx" id="btn-s4" disabled onclick="goTo(5)"><span data-i18n="btn_continue">Continuar</span><span>&#8594;</span></button></div>
+</div>
+
+<!-- S5 SCHEDULE -->
+<div class="screen" id="s5">
+  <div class="prog-wrap"><div class="prog-bg"><div class="prog-fill" style="width:62%"></div></div><div class="prog-lbl">PASO 6 DE 8 &middot; DISPONIBILIDAD</div></div>
+  <div class="step-h">Define tu <span>horario</span></div>
+  <div class="step-d">Los clientes solo podr&#225;n reservar dentro de estos rangos.</div>
+  <div class="sch-wrap" id="schwrap"></div>
+  <div class="fg" style="margin-top:13px"><label class="fl">Zona horaria</label><select class="fi fsel" id="tzsel"></select></div>
+  <div class="alert a-info"><div class="ai">&#8505;&#65039;</div><div>Los horarios se almacenan en UTC. Los clientes ven la hora en su zona local autom&#225;ticamente.</div></div>
+  <div class="btn-group"><button class="bbk" onclick="goTo(4)">&#8592; Atr&#225;s</button><button class="bnx" onclick="goTo(6)"><span data-i18n="btn_continue">Continuar</span><span>&#8594;</span></button></div>
+</div>
+
+<!-- S6 DOCS -->
+<div class="screen" id="s6">
+  <div class="prog-wrap"><div class="prog-bg"><div class="prog-fill" style="width:75%"></div></div><div class="prog-lbl">PASO 7 DE 8 &middot; VERIFICACI&#211;N DE IDENTIDAD</div></div>
+  <div class="step-h">Verifica tu <span>identidad</span></div>
+  <div class="step-d" id="s6d">Documentos requeridos seg&#250;n tu pa&#237;s y tipo de cuenta.</div>
+  <div class="alert a-warn"><div class="ai">&#128274;</div><div>Cifrado AES-256. Solo accesibles por el equipo de verificaci&#243;n bajo NDA. Nunca compartidos con terceros.</div></div>
+  <div class="doc-list" id="doclist"></div>
+  <div class="btn-group"><button class="bbk" onclick="goTo(5)">&#8592; Atr&#225;s</button><button class="bnx" onclick="goTo(7)"><span>Enviar para revisi&#243;n</span><span>&#8594;</span></button></div>
+  <button class="bsk" onclick="goTo(7)">Completar documentos m&#225;s tarde (reduce visibilidad)</button>
+</div>
+
+<!-- S7 LOCATION -->
+<div class="screen" id="s7">
+  <div class="prog-wrap"><div class="prog-bg"><div class="prog-fill" style="width:87%"></div></div><div class="prog-lbl">PASO 8 DE 8 &middot; ZONA DE SERVICIO</div></div>
+  <div class="step-h">&#191;D&#243;nde <span>trabajas?</span></div>
+  <div class="step-d">Define tu &#225;rea base y el radio de desplazamiento.</div>
+  <div class="fg"><label class="fl">Direcci&#243;n base</label><input class="fi" type="text" id="addr" placeholder="Ingresa tu direcci&#243;n o colonia"><div class="ih">No se muestra a los clientes &mdash; usamos el &#225;rea general para el matching.</div></div>
+  <div class="map-mock" onclick="showToast('GPS activado')"><div class="mgb"></div><div class="mring"></div><div class="mpin">&#128205;</div><div class="mlbl">Tap para usar GPS</div></div>
+  <div class="fg"><label class="fl">Radio de servicio</label><div class="rad-sel" id="radsel"></div><div class="ih">Radio mayor = m&#225;s clientes, m&#225;s desplazamiento. Recomendamos 10&ndash;20 km.</div></div>
+  <div class="fg"><label class="fl">Ciudad / Municipio <span class="opt">opcional</span></label><select class="fi fsel" id="citysel"></select></div>
+  <div class="btn-group"><button class="bbk" onclick="goTo(6)">&#8592; Atr&#225;s</button><button class="bnx" onclick="submit()"><span data-i18n="btn_create">Crear cuenta</span><span>&#128640;</span></button></div>
+</div>
+
+<!-- S8 CONFIRM -->
+<div class="screen" id="s8">
+  <div class="status-wrap">
+    <div class="sicon">&#9203;</div>
+    <div class="stitle">&#161;Solicitud enviada!</div>
+    <div class="sdesc" id="s8desc">Revisaremos tu informaci&#243;n. Te notificaremos por SMS y correo cuando tu cuenta est&#233; activa.</div>
+    <div class="tl" id="s8tl"></div>
+    <div class="alert a-info" style="text-align:left"><div class="ai">&#128161;</div><div>Mientras esperas, puedes <strong style="color:var(--blue)">configurar tu agenda semanal</strong> para que quede lista desde el primer d&#237;a.</div></div>
+    <button class="bnx bfl" id="btn-open-agenda" onclick="openAgendaPanel()"><span>Configurar mi agenda &#8594;</span><span>&#128197;</span></button>
+  </div>
+
+  <!-- INLINE AGENDA PANEL (visible after account creation while waiting for verification) -->
+  <div id="agenda-panel" style="display:none;max-width:640px;margin:0 auto;padding-bottom:40px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;margin-top:8px">
+      <div>
+        <div style="font-family:var(--fh);font-size:22px;font-weight:800">Mi <span style="color:var(--accent)">agenda</span></div>
+        <div style="font-size:13px;color:var(--muted);margin-top:3px">Configura tu disponibilidad &mdash; estara lista cuando tu cuenta sea aprobada</div>
+      </div>
+      <button onclick="closeAgendaPanel()" style="background:var(--surface2);border:1.5px solid var(--border2);border-radius:var(--rs);padding:8px 14px;color:var(--muted);font-size:13px;cursor:pointer;font-family:var(--fb);transition:all .2s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted)'">&#8592; Volver</button>
+    </div>
+
+    <!-- Week schedule -->
+    <div style="background:var(--surface);border:1.5px solid var(--border2);border-radius:var(--r);overflow:hidden;margin-bottom:16px">
+      <div style="padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+        <div style="font-size:14px;font-weight:600">Horario semanal</div>
+        <div style="font-size:12px;color:var(--muted)" id="tz-label-agenda"></div>
+      </div>
+      <div id="agenda-sch-grid"></div>
+    </div>
+
+    <!-- Slot duration -->
+    <div style="background:var(--surface);border:1.5px solid var(--border2);border-radius:var(--r);padding:18px;margin-bottom:16px">
+      <div style="font-size:14px;font-weight:600;margin-bottom:14px">Duraci&#243;n de cada servicio</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px" id="dur-btns"></div>
+    </div>
+
+    <!-- Advance booking -->
+    <div style="background:var(--surface);border:1.5px solid var(--border2);border-radius:var(--r);padding:18px;margin-bottom:16px">
+      <div style="font-size:14px;font-weight:600;margin-bottom:14px">Reservas con anticipo m&#237;nimo</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px" id="advance-btns"></div>
+      <div style="font-size:11px;color:var(--muted);margin-top:10px">Tiempo m&#237;nimo que necesitas antes de un servicio para prepararte.</div>
+    </div>
+
+    <!-- Block dates -->
+    <div style="background:var(--surface);border:1.5px solid var(--border2);border-radius:var(--r);padding:18px;margin-bottom:16px">
+      <div style="font-size:14px;font-weight:600;margin-bottom:14px">Bloquear fechas / vacaciones</div>
+      <div style="display:flex;gap:10px;margin-bottom:10px">
+        <div style="flex:1">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:5px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-family:var(--fh)">Desde</div>
+          <input type="date" id="block-from" class="fi" style="padding:10px 13px">
+        </div>
+        <div style="flex:1">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:5px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-family:var(--fh)">Hasta</div>
+          <input type="date" id="block-to" class="fi" style="padding:10px 13px">
+        </div>
+      </div>
+      <button onclick="addBlock()" style="width:100%;padding:10px;background:var(--surface2);border:1.5px solid var(--border2);border-radius:var(--rs);color:var(--muted);font-size:13px;font-weight:500;cursor:pointer;font-family:var(--fb);transition:all .2s" onmouseover="this.style.borderColor='var(--bacc)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border2)';this.style.color='var(--muted)'">+ Agregar bloqueo</button>
+      <div id="blocks-list" style="margin-top:10px;display:flex;flex-direction:column;gap:6px"></div>
+    </div>
+
+    <!-- Save button -->
+    <button class="bnx bfl" onclick="saveAgenda()" style="margin-top:4px"><span>Guardar agenda</span><span>&#10003;</span></button>
+    <div style="font-size:12px;color:var(--muted);text-align:center;margin-top:10px">Los cambios se aplicar&#225;n autom&#225;ticamente cuando tu cuenta sea aprobada</div>
+  </div>
+</div>
+
+</div></div></div>
+<div class="toast" id="toast"></div>
+<script>
+
+// ── i18n — Bilingual ES/EN ───────────────────────────────────────────────
+const STRINGS = {
+  es: {
+    // Nav
+    nav_search:       'Buscar',
+    nav_tracking:     'En curso',
+    nav_history:      'Historial',
+    nav_dashboard:    'Dashboard',
+    nav_providers:    'Proveedores',
+    nav_bookings:     'Reservas',
+    nav_disputes:     'Disputas',
+    nav_payments:     'Pagos',
+    nav_analytics:    'Analytics',
+    nav_settings:     'Configuración',
+    nav_categories:   'Categorías',
+    // Hero
+    hero_title:       'Encuentra al',
+    hero_highlight:   'profesional',
+    hero_sub:         'cerca de ti',
+    hero_placeholder: '¿Qué servicio necesitas?',
+    btn_search:       'Buscar',
+    // Categories
+    cat_all:          'Todos',
+    // Provider card
+    prov_verified:    'Verificado',
+    prov_company:     'Empresa',
+    prov_independent: 'Independiente',
+    prov_score:       'puntuación',
+    prov_exp_years:   'años exp.',
+    prov_view:        'Ver perfil',
+    prov_per_hour:    '/hora',
+    prov_no_results:  'No hay resultados en esta categoría',
+    prov_in_review:   'profesionales en revisión — disponibles tras la aprobación del administrador',
+    prov_try_other:   'Prueba otra categoría o amplía tu búsqueda',
+    // Profile
+    prof_back:        'Volver',
+    prof_step_profile:'Perfil',
+    prof_step_time:   'Horario',
+    prof_step_confirm:'Confirmar',
+    prof_step_pay:    'Pago',
+    prof_pick_date:   'Selecciona fecha y hora',
+    prof_no_slots:    'No hay horarios disponibles para este día. Intenta con otra fecha.',
+    prof_select_slot: 'Selecciona un horario disponible',
+    prof_book:        'Reservar',
+    prof_at:          'a las',
+    prof_reviews:     'Reseñas de clientes',
+    prof_avg:         'promedio',
+    // Confirm modal
+    modal_title:      'Confirmar tu reserva',
+    modal_provider:   'Proveedor',
+    modal_service:    'Servicio',
+    modal_date:       'Fecha',
+    modal_time:       'Hora',
+    modal_subtotal:   'Servicio (1 hr)',
+    modal_fee:        'Tarifa de servicio (15%)',
+    modal_total:      'Total',
+    modal_escrow:     'Tu pago está protegido — se libera solo al completar el servicio',
+    modal_cancel:     'Cancelar',
+    modal_pay:        'Confirmar y pagar',
+    // Tracking
+    track_confirmed:  'Reserva confirmada',
+    track_escrow:     'Pago reservado y protegido',
+    track_on_way:     'en camino',
+    track_eta:        'Tiempo estimado de llegada',
+    track_in_progress:'Servicio en curso',
+    track_completed:  'Servicio finalizado',
+    track_heading:    'El profesional está en camino',
+    track_updated:    'Actualizado hace un momento',
+    track_min_eta:    'min ETA',
+    btn_call:         'Llamar',
+    btn_chat:         'Chat',
+    btn_complete:     'Completado',
+    // History
+    hist_all:         'Todas',
+    hist_upcoming:    'Próximas',
+    hist_completed:   'Completadas',
+    hist_cancelled:   'Canceladas',
+    hist_status_comp: 'Completado',
+    hist_status_canc: 'Cancelado',
+    hist_status_upco: 'Próxima',
+    hist_rate:        'Dejar reseña',
+    hist_cancel:      'Cancelar reserva',
+    hist_view_prov:   'Ver perfil del profesional',
+    hist_empty:       '¡Aún no tienes reservas!',
+    hist_empty_sub:   'Encuentra un profesional y agenda tu primer servicio',
+    hist_no_results:  'Sin resultados para este filtro',
+    // Rating
+    rate_question:    '¿Cómo calificarías el servicio?',
+    rate_placeholder: 'Cuéntanos más (opcional)...',
+    rate_submit:      'Publicar reseña',
+    // Days / Months
+    days:  ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'],
+    months:['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'],
+    // Toasts
+    toast_booking_created:  'Reserva enviada — esperando que el profesional confirme',
+    toast_booking_cancelled:'Reserva cancelada. El reembolso se procesará en 3-5 días hábiles.',
+    toast_rating_sent:      '¡Gracias por tu reseña!',
+    toast_service_done:     '¡Servicio completado! El pago se liberará al profesional en breve.',
+    toast_call:             'Llamando a ',
+    toast_chat:             'Chat iniciado',
+    // Admin
+    adm_title:        'Dashboard',
+    adm_active_prov:  'Proveedores activos',
+    adm_total_books:  'Total de reservas',
+    adm_in_review:    'Pendientes de revisión',
+    adm_rating:       'Calificación promedio',
+    adm_approve:      'Aprobar',
+    adm_reject:       'Rechazar',
+    adm_suspend:      'Suspender',
+    adm_reactivate:   'Reactivar',
+    adm_view:         'Ver detalles',
+    adm_new_badge:    'NUEVO',
+    adm_tab_all:      'Todos',
+    adm_tab_review:   'En revisión',
+    adm_tab_suspended:'Suspendidos',
+    adm_tab_active:   'Activos',
+    adm_cat_new:      'Nueva categoría',
+    adm_cat_save:     'Guardar categoría',
+    adm_cat_cancel:   'Cancelar',
+    adm_cat_name:     'Nombre visible',
+    adm_cat_id:       'ID interno (sin espacios)',
+    adm_cat_icon:     'Ícono (emoji)',
+    adm_cat_desc:     'Descripción corta',
+    adm_cat_active:   'Activas',
+    adm_cat_total:    'Total',
+    // Provider app
+    prov_online:      'Disponible ahora',
+    prov_offline:     'No disponible',
+    prov_toggle_on:   'Estás disponible — los clientes pueden verte',
+    prov_toggle_off:  'Modo offline — no recibirás solicitudes',
+    prov_requests:    'Solicitudes nuevas',
+    prov_no_requests: 'No tienes solicitudes nuevas',
+    prov_accept:      'Aceptar trabajo',
+    prov_reject_req:  'Rechazar solicitud',
+    prov_earnings:    'Ganancias',
+    prov_today:       'Hoy',
+    prov_this_month:  'Este mes',
+    prov_tab_home:    'Inicio',
+    prov_tab_agenda:  'Mi agenda',
+    prov_tab_earnings:'Ganancias',
+    prov_tab_profile: 'Perfil',
+    // Registration
+    reg_country:      '¿En qué país ofreces tus servicios?',
+    reg_type:         '¿Cómo te quieres registrar?',
+    reg_basic:        'Cuéntanos sobre ti',
+    reg_phone:        'Verifica tu número',
+    reg_services:     '¿Qué servicios ofreces?',
+    reg_schedule:     'Configura tu disponibilidad',
+    reg_docs:         'Verificación de identidad',
+    reg_location:     '¿Cuál es tu zona de trabajo?',
+    reg_confirm:      '¡Tu solicitud fue enviada!',
+    btn_continue:     'Continuar',
+    btn_back:         'Atrás',
+    btn_send_otp:     'Enviar código por SMS',
+    btn_create:       'Crear mi cuenta',
+  },
+  en: {
+    // Nav
+    nav_search:       'Search',
+    nav_tracking:     'In Progress',
+    nav_history:      'History',
+    nav_dashboard:    'Dashboard',
+    nav_providers:    'Providers',
+    nav_bookings:     'Bookings',
+    nav_disputes:     'Disputes',
+    nav_payments:     'Payments',
+    nav_analytics:    'Analytics',
+    nav_settings:     'Settings',
+    nav_categories:   'Categories',
+    // Hero
+    hero_title:       'Find the',
+    hero_highlight:   'professional',
+    hero_sub:         'near you',
+    hero_placeholder: 'What service are you looking for?',
+    btn_search:       'Search',
+    // Categories
+    cat_all:          'All',
+    // Provider card
+    prov_verified:    'Verified',
+    prov_company:     'Company',
+    prov_independent: 'Independent',
+    prov_score:       'score',
+    prov_exp_years:   'yrs exp.',
+    prov_view:        'View profile',
+    prov_per_hour:    '/hr',
+    prov_no_results:  'No professionals found in this category',
+    prov_in_review:   'professionals pending review — available after admin approval',
+    prov_try_other:   'Try a different category or expand your search',
+    // Profile
+    prof_back:        'Back',
+    prof_step_profile:'Profile',
+    prof_step_time:   'Time',
+    prof_step_confirm:'Confirm',
+    prof_step_pay:    'Payment',
+    prof_pick_date:   'Select a date and time',
+    prof_no_slots:    'No availability for this day. Please try a different date.',
+    prof_select_slot: 'Select an available time slot',
+    prof_book:        'Book now',
+    prof_at:          'at',
+    prof_reviews:     'Client reviews',
+    prof_avg:         'avg.',
+    // Confirm modal
+    modal_title:      'Review & confirm',
+    modal_provider:   'Provider',
+    modal_service:    'Service',
+    modal_date:       'Date',
+    modal_time:       'Time',
+    modal_subtotal:   'Service (1 hr)',
+    modal_fee:        'Service fee (15%)',
+    modal_total:      'Total',
+    modal_escrow:     'Your payment is protected — released only when the job is done',
+    modal_cancel:     'Cancel',
+    modal_pay:        'Confirm & pay',
+    // Tracking
+    track_confirmed:  'Booking confirmed',
+    track_escrow:     'Payment secured',
+    track_on_way:     'on the way',
+    track_eta:        'Estimated arrival',
+    track_in_progress:'Service in progress',
+    track_completed:  'Service completed',
+    track_heading:    'Your professional is on the way',
+    track_updated:    'Updated just now',
+    track_min_eta:    'min ETA',
+    btn_call:         'Call',
+    btn_chat:         'Chat',
+    btn_complete:     'Mark complete',
+    // History
+    hist_all:         'All',
+    hist_upcoming:    'Upcoming',
+    hist_completed:   'Completed',
+    hist_cancelled:   'Cancelled',
+    hist_status_comp: 'Completed',
+    hist_status_canc: 'Cancelled',
+    hist_status_upco: 'Upcoming',
+    hist_rate:        'Leave a review',
+    hist_cancel:      'Cancel booking',
+    hist_view_prov:   'View professional\'s profile',
+    hist_empty:       'No bookings yet',
+    hist_empty_sub:   'Find a professional and schedule your first service',
+    hist_no_results:  'No results for this filter',
+    // Rating
+    rate_question:    'How would you rate this service?',
+    rate_placeholder: 'Tell us more (optional)...',
+    rate_submit:      'Publish review',
+    // Days / Months
+    days:  ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+    months:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+    // Toasts
+    toast_booking_created:  'Request sent — waiting for the professional to confirm',
+    toast_booking_cancelled:'Booking cancelled. Refund will be processed in 3-5 business days.',
+    toast_rating_sent:      'Thank you for your review!',
+    toast_service_done:     'Service complete! Payment will be released to the professional shortly.',
+    toast_call:             'Calling ',
+    toast_chat:             'Chat started',
+    // Admin
+    adm_title:        'Dashboard',
+    adm_active_prov:  'Active providers',
+    adm_total_books:  'Total bookings',
+    adm_in_review:    'Pending review',
+    adm_rating:       'Avg. rating',
+    adm_approve:      'Approve',
+    adm_reject:       'Reject',
+    adm_suspend:      'Suspend',
+    adm_reactivate:   'Reactivate',
+    adm_view:         'View details',
+    adm_new_badge:    'NEW',
+    adm_tab_all:      'All',
+    adm_tab_review:   'Pending review',
+    adm_tab_suspended:'Suspended',
+    adm_tab_active:   'Active',
+    adm_cat_new:      'New category',
+    adm_cat_save:     'Save category',
+    adm_cat_cancel:   'Cancel',
+    adm_cat_name:     'Display name',
+    adm_cat_id:       'Internal ID (no spaces)',
+    adm_cat_icon:     'Icon (emoji)',
+    adm_cat_desc:     'Short description',
+    adm_cat_active:   'Active',
+    adm_cat_total:    'Total',
+    // Provider app
+    prov_online:      'Available now',
+    prov_offline:     'Currently unavailable',
+    prov_toggle_on:   'You\'re live — clients can now find you',
+    prov_toggle_off:  'You\'re offline — no new requests will come in',
+    prov_requests:    'New requests',
+    prov_no_requests: 'No new requests at the moment',
+    prov_accept:      'Accept job',
+    prov_reject_req:  'Decline request',
+    prov_earnings:    'Earnings',
+    prov_today:       'Today',
+    prov_this_month:  'This month',
+    prov_tab_home:    'Home',
+    prov_tab_agenda:  'My schedule',
+    prov_tab_earnings:'Earnings',
+    prov_tab_profile: 'Profile',
+    // Registration
+    reg_country:      'Which country do you work in?',
+    reg_type:         'How would you like to sign up?',
+    reg_basic:        'Tell us about you',
+    reg_phone:        'Verify your number',
+    reg_services:     'What services do you provide?',
+    reg_schedule:     'Set your availability',
+    reg_docs:         'Identity verification',
+    reg_location:     'What is your service area?',
+    reg_confirm:      'Your request has been submitted!',
+    btn_continue:     'Continue',
+    btn_back:         'Back',
+    btn_send_otp:     'Send verification code',
+    btn_create:       'Create my account',
+  }
+};
+
+var _lang = localStorage.getItem('chambers-online_lang') || 'es';
+
+function T(key) {
+  return (STRINGS[_lang] && STRINGS[_lang][key]) || (STRINGS['es'] && STRINGS['es'][key]) || key;
+}
+
+function setLang(lang) {
+  _lang = lang;
+  localStorage.setItem('chambers-online_lang', lang);
+  // Re-render static elements with data-i18n attributes
+  document.querySelectorAll('[data-i18n]').forEach(function(el) {
+    var key = el.getAttribute('data-i18n');
+    var attr = el.getAttribute('data-i18n-attr');
+    if (attr) el.setAttribute(attr, T(key));
+    else el.textContent = T(key);
+  });
+  // Update lang toggle buttons
+  document.querySelectorAll('.lang-btn').forEach(function(btn) {
+    btn.classList.toggle('active', btn.dataset.lang === _lang);
+  });
+  // Trigger full re-render if the page has a render function
+  if (typeof renderHome === 'function')     renderHome();
+  if (typeof filterProviders === 'function') filterProviders('');
+  if (typeof buildCategoryChips === 'function') buildCategoryChips();
+  if (typeof renderProviders === 'function' && typeof getProviders === 'function')
+    renderProviders(getProviders().map(mapProvider));
+}
+
+function getLang() { return _lang; }
+// End i18n
+
+const C={
+  mx:{flag:'&#127474;&#127480;',name:'M&#233;xico',cur:'MXN',sym:'$',dial:'+52',dd:'&#127474;&#127480; +52',plen:10,ph:'55 1234 5678',phint:'10 d&#237;gitos. Ej: 5512345678',
+    tz:['Am&#233;rica/Mexico_City (UTC-6)','Am&#233;rica/Monterrey (UTC-6)','Am&#233;rica/Tijuana (UTC-8)','Am&#233;rica/Cancun (UTC-5)','Am&#233;rica/Hermosillo (UTC-7)'],
+    rad:[5,10,20,30,50],
+    cities:['Ciudad de M&#233;xico','Guadalajara','Monterrey','Puebla','Tijuana','Le&#243;n','M&#233;rida','Quer&#233;taro','San Luis Potos&#237;','Chihuahua'],
+    ind:[
+      {id:'ine',i:'&#129319;',n:'INE o Pasaporte vigente',r:'Credencial para votar o pasaporte &middot; Ambos lados &middot; JPG/PDF',req:true},
+      {id:'rfc',i:'&#128203;',n:'Constancia de RFC',r:'RFC con homoclave &middot; Portal SAT &middot; PDF',req:true},
+      {id:'selfie',i:'&#128248;',n:'Selfie con identificaci&#243;n',r:'Foto en tiempo real sosteniendo INE/pasaporte',req:true},
+      {id:'compdom',i:'&#127968;',n:'Comprobante de domicilio',r:'Recibo CFE, agua o predial &middot; M&#225;x 3 meses',req:false},
+      {id:'imss',i:'&#128737;&#65039;',n:'Comprobante IMSS/ISSSTE',r:'Alta o semanas cotizadas &middot; Opcional',req:false},
+    ],
+    corp:[
+      {id:'acta',i:'&#128220;',n:'Acta constitutiva',r:'Protocolizada ante notario &middot; PDF',req:true},
+      {id:'rfc_m',i:'&#128203;',n:'RFC persona moral',r:'Constancia SAT actualizada &middot; PDF',req:true},
+      {id:'rep_ine',i:'&#129319;',n:'INE del representante legal',r:'Ambos lados &middot; JPG/PDF',req:true},
+      {id:'poder',i:'&#9878;&#65039;',n:'Poder notarial',r:'Si el representante no aparece en acta',req:false},
+      {id:'selfie',i:'&#128248;',n:'Selfie del representante',r:'Sosteniendo su INE vigente',req:true},
+      {id:'alta_sat',i:'&#127968;',n:'Alta ante el SAT',r:'C&#233;dula de identificaci&#243;n fiscal &middot; PDF',req:true},
+    ],
+    ti:{ind:{t:'Persona independiente',d:'Trabajas por tu cuenta como persona f&#237;sica ante el SAT.',ds:['INE/Pasaporte','RFC persona f&#237;sica','Selfie']},corp:{t:'Empresa (Persona moral)',d:'Empresa registrada ante el SAT &mdash; S.A., S.R.L., S.A.S. o similar.',ds:['Acta constitutiva','RFC persona moral','INE representante']}}
+  },
+  us:{flag:'&#127482;&#127480;',name:'United States',cur:'USD',sym:'$',dial:'+1',dd:'&#127482;&#127480; +1',plen:10,ph:'(555) 123-4567',phint:'10-digit US number. E.g. 5551234567',
+    tz:['America/New_York (ET UTC-5)','America/Chicago (CT UTC-6)','America/Denver (MT UTC-7)','America/Los_Angeles (PT UTC-8)','America/Phoenix (MST UTC-7)','America/Anchorage (AKT UTC-9)'],
+    rad:[8,16,32,48,80],
+    cities:['New York, NY','Los Angeles, CA','Chicago, IL','Houston, TX','Phoenix, AZ','Philadelphia, PA','San Antonio, TX','San Diego, CA','Dallas, TX','Miami, FL','San Francisco, CA','Sacramento, CA','San Jose, CA','Fresno, CA','Long Beach, CA','Oakland, CA','Bakersfield, CA','Anaheim, CA','Riverside, CA','Stockton, CA','Irvine, CA','Chula Vista, CA','Fremont, CA','Santa Ana, CA','Modesto, CA'],
+    ind:[
+      {id:'govid',i:'&#129319;',n:'Government-issued Photo ID',r:"Driver's license, state ID, or US passport &middot; Both sides &middot; JPG/PDF",req:true},
+      {id:'ssn',i:'&#128290;',n:'Social Security Number (SSN)',r:'Last 4 digits only for verification purposes',req:true},
+      {id:'selfie',i:'&#128248;',n:'Selfie with ID',r:'Real-time photo holding your government-issued ID',req:true},
+      {id:'w9',i:'&#128203;',n:'W-9 Form',r:'Required for payouts over $600/year &middot; PDF',req:false},
+      {id:'bizlic',i:'&#128196;',n:'Business License / DBA',r:'If operating under a trade name &middot; Optional',req:false},
+    ],
+    corp:[
+      {id:'ein',i:'&#128203;',n:'EIN (Employer Identification Number)',r:'IRS-issued tax ID &middot; PDF or number on file',req:true},
+      {id:'articles',i:'&#128220;',n:'Articles of Incorporation / LLC Agreement',r:'Filed with state &middot; PDF',req:true},
+      {id:'rep_id',i:'&#129319;',n:"Representative's Government ID",r:"Driver's license or passport of authorized signer",req:true},
+      {id:'selfie',i:'&#128248;',n:"Representative's selfie with ID",r:'Real-time photo holding government ID',req:true},
+      {id:'bizlic',i:'&#128196;',n:'State Business License',r:'Required in most states &middot; PDF',req:true},
+      {id:'w9',i:'&#128203;',n:'W-9 Form',r:'Required for earnings reporting over $600/year',req:false},
+    ],
+    ti:{ind:{t:'Individual / Sole Proprietor',d:"You work independently. You may use your SSN or individual ITIN for tax purposes.",ds:['Gov. Photo ID','SSN (last 4)','Selfie with ID']},corp:{t:'Company (LLC / Corp / Partnership)',d:'You operate through a registered business entity.',ds:['EIN Number','Articles of Incorp.','Rep. Gov. ID']}}
+  },
+  do:{flag:'&#127465;&#127476;',name:'Rep. Dominicana',cur:'DOP',sym:'RD$',dial:'+1-809',dd:'&#127465;&#127476; +1-809',plen:10,ph:'809 123 4567',phint:'10 d&#237;gitos. Ej: 8091234567 (tambi&#233;n 829 y 849)',
+    tz:['Am&#233;rica/Santo_Domingo (AST UTC-4)'],
+    rad:[5,10,20,35,60],
+    cities:['Santo Domingo','Santiago de los Caballeros','La Romana','San Pedro de Macor&#237;s','San Francisco de Macor&#237;s','Puerto Plata','La Vega','Ban&#237;','Moca','Hig&#252;ey'],
+    ind:[
+      {id:'cedula',i:'&#129319;',n:'C&#233;dula de Identidad y Electoral',r:'C&#233;dula dominicana vigente &middot; Anverso y reverso &middot; JPG/PDF',req:true},
+      {id:'rnc',i:'&#128203;',n:'RNC (Registro Nacional de Contribuyentes)',r:'Solo si emites facturas &mdash; descarga de la DGII',req:false},
+      {id:'selfie',i:'&#128248;',n:'Selfie con c&#233;dula',r:'Foto en tiempo real sosteniendo tu c&#233;dula',req:true},
+      {id:'compdom',i:'&#127968;',n:'Comprobante de domicilio',r:'Recibo EDEESTE, EDENORTE, EDESUR o contrato alquiler',req:false},
+    ],
+    corp:[
+      {id:'reg_merc',i:'&#128220;',n:'Registro Mercantil (RNC empresa)',r:'Emisi&#243;n de la DGII &middot; PDF vigente',req:true},
+      {id:'acta_dom',i:'&#128203;',n:'Acta de constituci&#243;n',r:'Notariada y registrada en C&#225;mara de Comercio',req:true},
+      {id:'rep_ced',i:'&#129319;',n:'C&#233;dula del representante legal',r:'Ambos lados &middot; JPG/PDF',req:true},
+      {id:'selfie',i:'&#128248;',n:'Selfie del representante',r:'Sosteniendo su c&#233;dula vigente',req:true},
+      {id:'cert_inc',i:'&#128196;',n:'Certificado de incorporaci&#243;n',r:'Emitido por C&#225;mara de Comercio y Producci&#243;n &middot; PDF',req:false},
+    ],
+    ti:{ind:{t:'Persona independiente',d:'Trabajas por cuenta propia. Puedes tener RNC o solo c&#233;dula como contribuyente informal.',ds:['C&#233;dula Electoral','Selfie con c&#233;dula','RNC (opcional)']},corp:{t:'Empresa / SRL / SA',d:'Negocio registrado ante la C&#225;mara de Comercio y la DGII de Rep&#250;blica Dominicana.',ds:['RNC empresa','Acta constituci&#243;n','C&#233;dula representante']}}
+  },
+  co:{flag:'&#127464;&#127476;',name:'Colombia',cur:'COP',sym:'$',dial:'+57',dd:'&#127464;&#127476; +57',plen:10,ph:'310 123 4567',phint:'10 d&#237;gitos incluyendo indicativo. Ej: 3101234567',
+    tz:['Am&#233;rica/Bogota (COT UTC-5)'],
+    rad:[5,10,20,35,60],
+    cities:['Bogot&#225;','Medell&#237;n','Cali','Barranquilla','Cartagena','C&#250;cuta','Bucaramanga','Pereira','Santa Marta','Ibagu&#233;'],
+    ind:[
+      {id:'cc',i:'&#129319;',n:'C&#233;dula de Ciudadan&#237;a',r:'CC colombiana vigente &middot; Ambos lados &middot; JPG/PDF',req:true},
+      {id:'rut',i:'&#128203;',n:'RUT (Registro &#218;nico Tributario)',r:'Descarga del portal DIAN &middot; PDF actualizado',req:true},
+      {id:'selfie',i:'&#128248;',n:'Selfie con c&#233;dula',r:'Foto en tiempo real sosteniendo tu c&#233;dula',req:true},
+      {id:'compdom',i:'&#127968;',n:'Comprobante de domicilio',r:'Recibo EPM, CODENSA, EMCALI u otro servicio p&#250;blico',req:false},
+      {id:'afil',i:'&#128737;&#65039;',n:'Afiliaci&#243;n ARL/EPS',r:'Aumenta la confianza &mdash; opcional',req:false},
+    ],
+    corp:[
+      {id:'camara',i:'&#128220;',n:'Certificado C&#225;mara de Comercio',r:'Con vigencia m&#225;x 30 d&#237;as &middot; PDF',req:true},
+      {id:'rut_emp',i:'&#128203;',n:'RUT de la empresa',r:'Registro ante DIAN &middot; PDF actualizado',req:true},
+      {id:'rep_cc',i:'&#129319;',n:'C&#233;dula del representante legal',r:'Ambos lados &middot; JPG/PDF',req:true},
+      {id:'selfie',i:'&#128248;',n:'Selfie del representante',r:'Sosteniendo su c&#233;dula',req:true},
+      {id:'escritura',i:'&#128196;',n:'Escritura de constituci&#243;n',r:'Para S.A.S., S.A. o similar &middot; PDF notariado',req:false},
+    ],
+    ti:{ind:{t:'Persona natural',d:'Trabajas de forma independiente. Puedes estar obligado o no a facturar seg&#250;n tus ingresos.',ds:['C&#233;dula de Ciudadan&#237;a','RUT DIAN','Selfie con c&#233;dula']},corp:{t:'Empresa (S.A.S. / S.A. / Ltda.)',d:'Sociedad registrada ante la C&#225;mara de Comercio de tu ciudad y la DIAN.',ds:['C&#225;mara de Comercio','RUT empresa','CC representante']}}
+  },
+  sv:{flag:'&#127480;&#127483;',name:'El Salvador',cur:'USD',sym:'$',dial:'+503',dd:'&#127480;&#127483; +503',plen:8,ph:'7123 4567',phint:'8 d&#237;gitos. Ej: 71234567 (m&#243;vil inicia con 6 o 7)',
+    tz:['Am&#233;rica/El_Salvador (CST UTC-6)'],
+    rad:[5,10,20,30,50],
+    cities:['San Salvador','Santa Ana','San Miguel','Soyapango','Mejicanos','Santa Tecla','Apopa','Delgado','Usulut&#225;n','Zacatecoluca'],
+    ind:[
+      {id:'dui',i:'&#129319;',n:'DUI (Documento &#218;nico de Identidad)',r:'DUI vigente &middot; Anverso y reverso &middot; JPG/PDF',req:true},
+      {id:'nit',i:'&#128203;',n:'NIT (N&#250;mero de Identificaci&#243;n Tributaria)',r:'Emitido por el MH &middot; PDF &mdash; requerido para facturar',req:true},
+      {id:'selfie',i:'&#128248;',n:'Selfie con DUI',r:'Foto en tiempo real sosteniendo tu DUI',req:true},
+      {id:'compdom',i:'&#127968;',n:'Comprobante de domicilio',r:'Recibo ANDA, CAESS o AES &middot; M&#225;x 2 meses de antig&#252;edad',req:false},
+      {id:'iss',i:'&#128737;&#65039;',n:'Constancia ISSS',r:'Afiliaci&#243;n al seguro social &mdash; aumenta confianza',req:false},
+    ],
+    corp:[
+      {id:'credencial',i:'&#128220;',n:'Credencial de Representante Legal',r:'Emitida por Centro Nacional de Registros (CNR) &middot; PDF',req:true},
+      {id:'nit_emp',i:'&#128203;',n:'NIT de la empresa',r:'Registro en el Ministerio de Hacienda &middot; PDF',req:true},
+      {id:'rep_dui',i:'&#129319;',n:'DUI del representante legal',r:'Ambos lados &middot; JPG/PDF',req:true},
+      {id:'selfie',i:'&#128248;',n:'Selfie del representante',r:'Sosteniendo su DUI vigente',req:true},
+      {id:'escritura',i:'&#128196;',n:'Escritura de constituci&#243;n',r:'Inscrita en el CNR &middot; PDF notariado',req:false},
+      {id:'reg_com',i:'&#128203;',n:'Registro de Comercio',r:'Emitido por el CNR &middot; PDF actualizado',req:true},
+    ],
+    ti:{ind:{t:'Persona natural',d:'Trabajas de forma independiente. Necesitas DUI y NIT para operar formalmente.',ds:['DUI vigente','NIT (MH)','Selfie con DUI']},corp:{t:'Empresa / Sociedad',d:'Sociedad inscrita en el CNR y registrada ante Hacienda.',ds:['Credencial Rep. Legal','NIT empresa','Registro de Comercio']}}
+  }
+};
+const SVCS=[{id:'herreria',l:'Herrer&#237;a'},{id:'soldadura',l:'Soldadura'},{id:'plomeria',l:'Plomer&#237;a'},{id:'carpinteria',l:'Carpinter&#237;a'},{id:'electricidad',l:'Electricidad'},{id:'limpieza',l:'Limpieza especializada'},{id:'pintura',l:'Pintura'},{id:'albanileria',l:'Alba&#241;iler&#237;a'},{id:'llantas',l:'Reparaci&#243;n de llantas'},{id:'mudanzas',l:'Mudanzas'},{id:'cerrajeria',l:'Cerrajer&#237;a'},{id:'jardineria',l:'Jardiner&#237;a'},{id:'fumigacion',l:'Fumigaci&#243;n'},{id:'ac',l:'Aire acondicionado'},{id:'tech',l:'Reparaci&#243;n equipos'}];
+const DAYS=['Lun','Mar','Mi&#233;','Jue','Vie','S&#225;b','Dom'];
+const STEPS_NAV=[{l:'Pa&#237;s',s:'Selecci&#243;n de pa&#237;s'},{l:'Tipo de cuenta',s:'Individual o empresa'},{l:'Datos b&#225;sicos',s:'Nombre, email y descripci&#243;n'},{l:'Tel&#233;fono',s:'C&#243;digo OTP por SMS'},{l:'Servicios',s:'Qu&#233; ofreces y precio'},{l:'Horario',s:'D&#237;as y horas de atenci&#243;n'},{l:'Identidad',s:'Documentos requeridos'},{l:'Zona de servicio',s:'Ubicaci&#243;n y radio'},{l:'Confirmaci&#243;n',s:'Solicitud enviada'}];
+let S={step:0,country:null,type:null,svcs:[],pt:'hourly',docs:{},schActive:[true,true,true,true,true,false,false],phone:'',radius:10};
+let otpIv=null;
+
+function buildNav(){
+  document.getElementById('snav').innerHTML=STEPS_NAV.map((s,i)=>`<div><div class="snav-item ${i===S.step?'active':i<S.step?'done':'disabled'}" onclick="${i<S.step?'goTo('+i+')':''}""><div class="snav-bullet">${i<S.step?'&#10003;':i+1}</div><div><div class="snav-label">${s.l}</div><div class="snav-sub">${s.s}</div></div></div>${i<STEPS_NAV.length-1?'<div class="snav-conn"></div>':''}</div>`).join('');
+}
+
+function goTo(n){
+  document.getElementById('s'+S.step).classList.remove('active');
+  S.step=n;
+  document.getElementById('s'+n).classList.add('active');
+  document.querySelectorAll('.lang-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.lang === getLang()); });
+buildNav();
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(n===1)bldType();
+  if(n===2)bldS2();
+  if(n===3)bldPhone();
+  if(n===4)bldSvcs();
+  if(n===5)bldSch();
+  if(n===6)bldDocs();
+  if(n===7)bldLoc();
+  if(n===8)bldConfirm();
+}
+
+function selCountry(code){
+  S.country=code;
+  document.querySelectorAll('.cc').forEach(c=>c.classList.remove('sel'));
+  document.getElementById('cc-'+code).classList.add('sel');
+  document.getElementById('btn-s0').disabled=false;
+  const c=C[code];
+  document.getElementById('cbanner-wrap').innerHTML=`<div class="cbanner"><div class="cb-flag">${c.flag}</div><div style="flex:1"><div class="cb-title">${c.name}</div><div class="cb-chips"><span class="cbc a">&#128176; ${c.cur}</span><span class="cbc">&#128222; ${c.dial}</span><span class="cbc">${c.tz[0].split('(')[1]?.replace(')','')??'UTC'}</span><span class="cbc">Radio m&#225;x. ${Math.max(...c.rad)} km</span></div></div></div>`;
+}
+
+function bldType(){
+  if(!S.country)return;
+  const c=C[S.country];
+  document.getElementById('tcards').innerHTML=['ind','corp'].map(t=>`<div class="tc ${S.type===t?'sel':''}" id="tc-${t}" onclick="selType('${t}')"><span class="tc-icon">${t==='ind'?'&#128100;':'&#127970;'}</span><div class="tc-title">${c.ti[t].t}</div><div class="tc-desc">${c.ti[t].d}</div><div class="tc-docs">${c.ti[t].ds.map(d=>`<div class="tcd"><div class="tdot"></div>${d}</div>`).join('')}</div></div>`).join('');
+}
+
+function selType(t){
+  S.type=t;
+  document.querySelectorAll('.tc').forEach(c=>c.classList.remove('sel'));
+  document.getElementById('tc-'+t).classList.add('sel');
+  document.getElementById('btn-s1').disabled=false;
+}
+
+function bldS2(){
+  if(!S.country)return;
+  const isEn=S.country==='us';
+  const isInd=S.type==='ind';
+  document.getElementById('s2h').innerHTML=isInd?(isEn?'Tell us about <span>you</span>':'Cu&#233;ntanos sobre <span>ti</span>'):(isEn?'Tell us about your <span>company</span>':'Cu&#233;ntanos sobre tu <span>empresa</span>');
+  document.getElementById('s2pl').textContent=isEn?`STEP 3 OF 8 \u00b7 ${isInd?'PERSONAL INFO':'COMPANY INFO'}`:`PASO 3 DE 8 \u00b7 ${isInd?'INFORMACI\u00d3N PERSONAL':'INFORMACI\u00d3N DE LA EMPRESA'}`;
+  const flds=isInd?`<div class="fr"><div class="fg"><label class="fl">${isEn?'First name':'Nombre(s)'}</label><input class="fi" type="text" placeholder="${isEn?'John':'Juan'}" id="ff" oninput="vS2()"></div><div class="fg"><label class="fl">${isEn?'Last name':'Apellido(s)'}</label><input class="fi" type="text" placeholder="${isEn?'Smith':'Mart&#237;nez'}" id="fl" oninput="vS2()"></div></div>`:`<div class="fg"><label class="fl">${isEn?'Company / Business name':'Raz&#243;n social o nombre del negocio'}</label><input class="fi" type="text" placeholder="${isEn?'Smith Home Services LLC':'Servicios Profesionales S.A.'}" id="fbiz" oninput="vS2()"></div><div class="fr"><div class="fg"><label class="fl">${isEn?'Representative':'Representante legal'}</label><input class="fi" type="text" placeholder="${isEn?'John Smith':'Juan Mart&#237;nez'}" id="frep" oninput="vS2()"></div><div class="fg"><label class="fl">${isEn?'Job title':'Cargo'}</label><input class="fi" type="text" placeholder="${isEn?'CEO / Owner':'Director General'}" id="frole" oninput="vS2()"></div></div>`;
+  document.getElementById('s2fields').innerHTML=flds+`<div class="fg"><label class="fl">${isEn?'Email':'Correo electr&#243;nico'}</label><input class="fi" type="email" placeholder="${isEn?'john@example.com':'juan@ejemplo.com'}" id="femail" oninput="vS2()"></div><div class="fg"><label class="fl">${isEn?'Password (min 8 chars)':'Contrase&#241;a (m&#237;n. 8 caracteres)'}</label><input class="fi" type="password" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" id="fpwd" oninput="vS2()"></div><div class="fg"><label class="fl">${isEn?'Professional description':'Descripci&#243;n profesional'}</label><textarea class="fi fta" placeholder="${isEn?'Describe your experience and specialties...':'Describe tu experiencia, especialidades y qu&#233; hace diferente tu trabajo...'}" id="fbio" oninput="uCC(this,'cbb',300);vS2()" maxlength="300"></textarea><div style="display:flex;justify-content:space-between;margin-top:3px"><div class="ih">${isEn?'Min. 20 characters':'M&#237;nimo 20 caracteres'}</div><div class="cc-count"><span id="cbb">0</span>/300</div></div></div><div class="fr"><div class="fg"><label class="fl">${isEn?'Years exp.':'A&#241;os de experiencia'}</label><input class="fi" type="number" placeholder="5" min="0" max="60" id="fexp" oninput="vS2()"></div><div class="fg"><label class="fl">${isEn?'Business type':'Tipo de negocio'}</label><select class="fi fsel" id="fbtype"><option value="">${isEn?'Select...':'Selecciona...'}</option><option>${isEn?'Solo freelancer':'Freelancer independiente'}</option><option>${isEn?'Small workshop':'Taller o negocio local'}</option><option>${isEn?'Company with employees':'Empresa con empleados'}</option><option>${isEn?'Franchise':'Franquicia'}</option></select></div></div>`;
+}
+
+function uCC(el,id,max){document.getElementById(id).textContent=el.value.length;}
+function vS2(){
+  const isInd=S.type==='ind';
+  const em=document.getElementById('femail')?.value||'';
+  const pw=document.getElementById('fpwd')?.value||'';
+  const bi=document.getElementById('fbio')?.value||'';
+  const ex=document.getElementById('fexp')?.value||'';
+  let ok;
+  if(isInd){const fn=document.getElementById('ff')?.value||'';const ln=document.getElementById('fl')?.value||'';ok=fn.trim()&&ln.trim()&&em.includes('@')&&pw.length>=8&&bi.length>=20&&ex;}
+  else{const bz=document.getElementById('fbiz')?.value||'';const rp=document.getElementById('frep')?.value||'';ok=bz.trim()&&rp.trim()&&em.includes('@')&&pw.length>=8&&bi.length>=20&&ex;}
+  document.getElementById('btn-s2').disabled=!ok;
+}
+
+function bldPhone(){
+  if(!S.country)return;
+  const c=C[S.country];
+  document.getElementById('ppfx').innerHTML=c.dd;
+  document.getElementById('phonein').placeholder=c.ph;
+  document.getElementById('phhint').textContent=c.phint;
+  const plen=c.dd.length;
+  document.getElementById('phonein').style.paddingLeft=(plen>10?110:92)+'px';
+}
+
+function onPhIn(el){
+  const c=C[S.country];
+  document.getElementById('btn-otp').disabled=el.value.replace(/\D/g,'').length<c.plen;
+}
+
+function sendOTP(){
+  const c=C[S.country];
+  const num=c.dial+document.getElementById('phonein').value.replace(/\D/g,'');
+  S.phone=num;
+  document.getElementById('phone-entry').style.display='none';
+  document.getElementById('otp-entry').style.display='block';
+  document.getElementById('ph-back').style.display='none';
+  document.getElementById('otpdisp').textContent=num;
+  stOTPTimer();
+  showToast('C&#243;digo enviado a '+num);
+  setTimeout(()=>{[1,2,3,4,5,6].forEach((v,i)=>{const el=document.getElementById('o'+i);el.value=v;el.classList.add('f');});chkOTP();},1400);
+}
+
+function stOTPTimer(){
+  let s=59;const te=document.getElementById('otptimer');const rb=document.getElementById('resend-btn');
+  te.style.display='block';rb.style.display='none';
+  if(otpIv)clearInterval(otpIv);
+  otpIv=setInterval(()=>{s--;te.textContent='Reenviar en '+s+'s';if(s<=0){clearInterval(otpIv);te.style.display='none';rb.style.display='block';}},1000);
+}
+
+function rstPhone(){
+  document.getElementById('phone-entry').style.display='';document.getElementById('otp-entry').style.display='none';
+  document.getElementById('ph-back').style.display='flex';document.getElementById('otp-next').style.display='none';
+  [0,1,2,3,4,5].forEach(i=>{const el=document.getElementById('o'+i);el.value='';el.classList.remove('f');});
+}
+
+function mvOTP(el,idx){
+  el.classList.toggle('f',el.value.length>0);
+  if(el.value&&idx<5)document.getElementById('o'+(idx+1)).focus();
+  if([0,1,2,3,4,5].every(i=>document.getElementById('o'+i).value.length===1))chkOTP();
+}
+
+function chkOTP(){
+  const code=[0,1,2,3,4,5].map(i=>document.getElementById('o'+i).value).join('');
+  if(code==='123456'){document.getElementById('otp-next').style.display='flex';showToast('&#10003; Tel&#233;fono verificado','success');}
+  else showToast('C&#243;digo incorrecto','error');
+}
+
+function bldSvcs(){
+  if(!S.country)return;
+  const c=C[S.country];
+  document.getElementById('curpfx').textContent=c.sym;
+  document.getElementById('curpfx2').textContent=c.sym;
+  document.getElementById('svchips').innerHTML=SVCS.map(sv=>`<div class="chip ${S.svcs.includes(sv.id)?'sel':''}" id="sc-${sv.id}" onclick="togSvc('${sv.id}')">${sv.l}</div>`).join('');
+}
+
+function togSvc(id){
+  if(S.svcs.includes(id))S.svcs=S.svcs.filter(s=>s!==id);else S.svcs.push(id);
+  document.getElementById('sc-'+id).classList.toggle('sel',S.svcs.includes(id));
+  const n=S.svcs.length;
+  document.getElementById('svchint').textContent=n>0?`${n} categor&#237;a${n>1?'s':''} seleccionada${n>1?'s':''}`:'Selecciona al menos una categor&#237;a';
+  document.getElementById('svchint').style.color=n>0?'var(--accent)':'var(--muted)';
+  valS4();
+}
+
+function valS4(){
+  const p=document.getElementById('prval')?.value;
+  document.getElementById('btn-s4').disabled=!(S.svcs.length>0&&(S.pt==='quote'||p>0));
+}
+
+function selPT(t){
+  S.pt=t;
+  ['hourly','fixed','quote'].forEach(x=>document.getElementById('pt-'+x).classList.toggle('sel',x===t));
+  const ls={hourly:'Precio / hora',fixed:'Precio fijo',quote:'Precio de referencia'};
+  document.getElementById('prlbl').textContent=ls[t];
+  const pv=document.getElementById('prval');pv.disabled=t==='quote';
+  if(t==='quote'){pv.value='';pv.placeholder='N/A';}else pv.placeholder=t==='hourly'?'350':'1200';
+  valS4();
+}
+
+function bldSch(){
+  if(!S.country)return;
+  const c=C[S.country];
+  document.getElementById('tzsel').innerHTML=c.tz.map(t=>`<option>${t}</option>`).join('');
+  const ds=['09:00','09:00','09:00','09:00','09:00','10:00','--:--'];
+  const de=['18:00','18:00','18:00','18:00','18:00','15:00','--:--'];
+  document.getElementById('schwrap').innerHTML=DAYS.map((d,i)=>`<div class="sch-row"><div class="st"><div class="dtog ${S.schActive[i]?'on':''}" id="dtog-${i}" onclick="togDay(${i})">${S.schActive[i]?'&#10003;':''}</div></div><div class="sd" style="color:${S.schActive[i]?'var(--text)':'var(--muted)'}">${d}</div><div class="stm"><input class="tin" type="time" value="${ds[i]}" id="ds-${i}" ${!S.schActive[i]?'disabled':''}></div><div class="stm"><input class="tin" type="time" value="${de[i]}" id="de-${i}" ${!S.schActive[i]?'disabled':''}></div></div>`).join('');
+}
+
+function togDay(i){S.schActive[i]=!S.schActive[i];bldSch();}
+
+function bldDocs(){
+  if(!S.country||!S.type)return;
+  const c=C[S.country];
+  const docs=S.type==='ind'?c.ind:c.corp;
+  document.getElementById('s6d').textContent=`Documentos requeridos en ${c.name} para ${S.type==='ind'?'persona natural/f\u00edsica':'empresa/persona moral'}.`;
+  document.getElementById('doclist').innerHTML=docs.map(d=>`<div class="di ${S.docs[d.id]?'up':''}" id="di-${d.id}" onclick="upDoc('${d.id}')"><div class="dw">${d.i}</div><div style="flex:1"><div class="dn">${d.n}</div><div class="dr">${d.r}</div></div><div><span class="db ${S.docs[d.id]?'db-u':d.req?'db-r':'db-o'}" id="db-${d.id}">${S.docs[d.id]?'&#10003; Subido':d.req?'Requerido':'Opcional'}</span></div></div>`).join('');
+}
+
+function upDoc(id){
+  S.docs[id]=true;
+  const el=document.getElementById('di-'+id);if(el)el.classList.add('up');
+  const b=document.getElementById('db-'+id);if(b){b.className='db db-u';b.innerHTML='&#10003; Subido';}
+  showToast('&#10003; Documento subido','success');
+}
+
+function bldLoc(){
+  if(!S.country)return;
+  const c=C[S.country];
+  document.getElementById('addr').placeholder=c.cities[0]+', '+c.name;
+  document.getElementById('radsel').innerHTML=c.rad.map(km=>`<div class="rb ${S.radius===km?'sel':''}" onclick="selRad(this,${km})">${km} km</div>`).join('');
+  if(S.country==='us'){
+    const caCities=c.cities.filter(ci=>ci.endsWith(', CA'));
+    const otherCities=c.cities.filter(ci=>!ci.endsWith(', CA'));
+    document.getElementById('citysel').innerHTML=
+      '<option value="">Select city...</option>'+
+      '<optgroup label="California">'+caCities.map(ci=>`<option>${ci}</option>`).join('')+'</optgroup>'+
+      '<optgroup label="Other states">'+otherCities.map(ci=>`<option>${ci}</option>`).join('')+'</optgroup>';
+  } else {
+    document.getElementById('citysel').innerHTML='<option value="">Selecciona ciudad...</option>'+c.cities.map(ci=>`<option>${ci}</option>`).join('');
+  }
+}
+
+function selRad(el,km){S.radius=km;document.querySelectorAll('.rb').forEach(b=>b.classList.remove('sel'));el.classList.add('sel');}
+
+function bldConfirm(){
+  if(!S.country)return;
+  const c=C[S.country];
+  const now=new Date();
+  const t=now.toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'})+' hrs';
+  document.getElementById('s8desc').textContent=`Tu solicitud en ${c.name} fue recibida. Te notificaremos cuando tu cuenta est\u00e9 activa. Normalmente toma menos de 24 horas h\u00e1biles.`;
+  document.getElementById('s8tl').innerHTML=`<div class="tlr"><div class="tli d">&#10003;</div><div class="tlb"><div class="tlt d">Registro completado</div><div class="tls">Hoy &middot; ${t}</div></div></div><div class="tlr"><div class="tli d">&#10003;</div><div class="tlb"><div class="tlt d">Tel&#233;fono verificado</div><div class="tls">${S.phone||c.dial+' XXXXXXXX'}</div></div></div><div class="tlr"><div class="tli a">&#8987;</div><div class="tlb"><div class="tlt a">Revisi&#243;n de documentos en curso</div><div class="tls">Equipo de verificaci&#243;n ${c.name} &middot; SLA 24h</div></div></div><div class="tlr"><div class="tli p">4</div><div class="tlb"><div class="tlt p">Perfil activado en marketplace</div><div class="tls">Pendiente de aprobaci&#243;n</div></div></div>`;
+}
+
+function submit(){
+  // Build provider object from form state
+  const isInd = S.type==='ind';
+  const isEn  = S.country==='us';
+  const c     = C[S.country];
+
+  const fn    = document.getElementById('ff')?.value   || '';
+  const ln    = document.getElementById('fl')?.value   || '';
+  const biz   = document.getElementById('fbiz')?.value || '';
+  const rep   = document.getElementById('frep')?.value || '';
+  const email = document.getElementById('femail')?.value || '';
+  const bio   = document.getElementById('fbio')?.value   || '';
+  const exp   = parseInt(document.getElementById('fexp')?.value || '0');
+  const price = parseInt(document.getElementById('prval')?.value || '0');
+  const city  = document.getElementById('citysel')?.value || '';
+
+  const displayName = isInd ? (fn+' '+ln).trim() : biz.trim();
+  const icons = ['⚒️','🔨','🔧','🪚','⚡','🧹','🖌️','🏗️','🛞','📦'];
+  const icon  = icons[S.svcs.length % icons.length] || '👤';
+
+  // Calculate risk score (simple heuristic)
+  const docKeys  = Object.keys(S.docs);
+  const reqDocs  = (isInd ? c.ind : c.corp).filter(d=>d.req).map(d=>d.id);
+  const missingReq = reqDocs.filter(id => !S.docs[id]).length;
+  const riskScore  = Math.min(95, missingReq * 20 + (exp < 1 ? 15 : 0));
+
+  const providerRecord = {
+    id:           DB.uid(),
+    name:         displayName,
+    businessName: isInd ? null : biz,
+    repName:      isInd ? null : rep,
+    type:         isInd ? 'individual' : 'company',
+    country:      S.country,
+    currency:     c.cur,
+    services:     S.svcs,
+    priceType:    S.pt,
+    price:        price,
+    exp:          exp,
+    rating:       0,
+    reviewCount:  0,
+    score:        0,
+    verified:     false,
+    status:       'review',           // always starts in review
+    riskScore:    riskScore,
+    bookings:     0,
+    gmv:          '$0',
+    icon:         icon,
+    email:        email,
+    phone:        S.phone,
+    bio:          bio,
+    city:         city,
+    docs:         S.docs,
+    schedule:     {
+      active: S.schActive,
+      starts: ['09:00','09:00','09:00','09:00','09:00','10:00','--:--'],
+      ends:   ['18:00','18:00','18:00','18:00','18:00','15:00','--:--'],
+    },
+    agenda: {
+      durMin:     agendaState ? agendaState.dur : 60,
+      advanceHrs: agendaState ? agendaState.advance : 2,
+      blocks:     agendaState ? agendaState.blocks : [],
+    },
+    createdAt: DB.now(),
+  };
+
+  DB.providers.save(providerRecord);
+  DB.analytics.track('provider_registered', { id: providerRecord.id, country: S.country, type: S.type });
+
+  S.registeredId = providerRecord.id;
+
+  goTo(8);
+  showToast('&#10003; Cuenta creada — revisando documentos','success');
+}
+
+// ── AGENDA PANEL ──────────────────────────────────────────
+const AGENDA_DAYS=['Lun','Mar','Mi&eacute;','Jue','Vie','S&aacute;b','Dom'];
+let agendaState={
+  schActive:[true,true,true,true,true,false,false],
+  starts:['09:00','09:00','09:00','09:00','09:00','10:00','--:--'],
+  ends:  ['18:00','18:00','18:00','18:00','18:00','15:00','--:--'],
+  dur:60, advance:2, blocks:[]
+};
+
+function openAgendaPanel(){
+  document.getElementById('s8').querySelector('.status-wrap').style.display='none';
+  document.getElementById('agenda-panel').style.display='block';
+  buildAgendaGrid();
+  buildDurBtns();
+  buildAdvanceBtns();
+  buildBlocksList();
+  if(S.country){
+    const c=C[S.country];
+    const tzEl=document.getElementById('tz-label-agenda');
+    if(tzEl)tzEl.textContent=c.tz[0];
+  }
+}
+
+function closeAgendaPanel(){
+  document.getElementById('agenda-panel').style.display='none';
+  document.getElementById('s8').querySelector('.status-wrap').style.display='block';
+}
+
+function buildAgendaGrid(){
+  const wrap=document.getElementById('agenda-sch-grid');
+  if(!wrap)return;
+  wrap.innerHTML=AGENDA_DAYS.map((d,i)=>`
+    <div style="display:grid;grid-template-columns:34px 52px 1fr 1fr;align-items:center;border-bottom:1px solid var(--border)${i===6?'':''}">
+      <div style="padding:9px;display:flex;justify-content:center">
+        <div class="dtog ${agendaState.schActive[i]?'on':''}" id="atog-${i}" onclick="agTogDay(${i})">${agendaState.schActive[i]?'&#10003;':''}</div>
+      </div>
+      <div style="padding:9px 7px;font-size:12px;font-weight:600;color:${agendaState.schActive[i]?'var(--text)':'var(--muted)'}">${d}</div>
+      <div style="padding:6px 9px"><input class="tin" type="time" value="${agendaState.starts[i]}" id="as-${i}" ${!agendaState.schActive[i]?'disabled':''} onchange="agendaState.starts[${i}]=this.value"></div>
+      <div style="padding:6px 9px"><input class="tin" type="time" value="${agendaState.ends[i]}"   id="ae-${i}" ${!agendaState.schActive[i]?'disabled':''} onchange="agendaState.ends[${i}]=this.value"></div>
+    </div>
+  `).join('');
+}
+
+function agTogDay(i){
+  agendaState.schActive[i]=!agendaState.schActive[i];
+  buildAgendaGrid();
+}
+
+function buildDurBtns(){
+  const opts=[{v:30,l:'30 min'},{v:60,l:'1 hora'},{v:90,l:'1.5 hrs'},{v:120,l:'2 horas'},{v:180,l:'3 horas'},{v:240,l:'4 horas'}];
+  const wrap=document.getElementById('dur-btns');if(!wrap)return;
+  wrap.innerHTML=opts.map(o=>`<div onclick="selDur(${o.v},this)" style="padding:10px;border-radius:var(--rs);border:1.5px solid ${agendaState.dur===o.v?'var(--accent)':' var(--border2)'};background:${agendaState.dur===o.v?'var(--accent-dim)':' var(--surface)'};text-align:center;cursor:pointer;transition:all .2s;font-size:13px;font-weight:${agendaState.dur===o.v?'600':'400'};color:${agendaState.dur===o.v?'var(--accent)':'var(--muted)'}">${o.l}</div>`).join('');
+}
+
+function selDur(v,el){
+  agendaState.dur=v;
+  buildDurBtns();
+}
+
+function buildAdvanceBtns(){
+  const opts=[{v:1,l:'1 hora'},{v:2,l:'2 horas'},{v:4,l:'4 horas'},{v:24,l:'1 d&iacute;a'},{v:48,l:'2 d&iacute;as'},{v:72,l:'3 d&iacute;as'}];
+  const wrap=document.getElementById('advance-btns');if(!wrap)return;
+  wrap.innerHTML=opts.map(o=>`<div onclick="selAdvance(${o.v})" style="padding:10px;border-radius:var(--rs);border:1.5px solid ${agendaState.advance===o.v?'var(--accent)':'var(--border2)'};background:${agendaState.advance===o.v?'var(--accent-dim)':'var(--surface)'};text-align:center;cursor:pointer;transition:all .2s;font-size:13px;font-weight:${agendaState.advance===o.v?'600':'400'};color:${agendaState.advance===o.v?'var(--accent)':'var(--muted)'}">${o.l}</div>`).join('');
+}
+
+function selAdvance(v){
+  agendaState.advance=v;
+  buildAdvanceBtns();
+}
+
+function addBlock(){
+  const from=document.getElementById('block-from').value;
+  const to=document.getElementById('block-to').value;
+  if(!from||!to){showToast('Selecciona fecha de inicio y fin','error');return;}
+  if(from>to){showToast('La fecha de inicio debe ser anterior al fin','error');return;}
+  agendaState.blocks.push({from,to,id:Date.now()});
+  buildBlocksList();
+  document.getElementById('block-from').value='';
+  document.getElementById('block-to').value='';
+  showToast('Bloqueo agregado','success');
+}
+
+function removeBlock(id){
+  agendaState.blocks=agendaState.blocks.filter(b=>b.id!==id);
+  buildBlocksList();
+}
+
+function buildBlocksList(){
+  const wrap=document.getElementById('blocks-list');if(!wrap)return;
+  if(!agendaState.blocks.length){wrap.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:8px">Sin bloqueos configurados</div>';return;}
+  wrap.innerHTML=agendaState.blocks.map(b=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:10px 13px">
+      <div>
+        <div style="font-size:13px;font-weight:600">${fmtDate(b.from)} &rarr; ${fmtDate(b.to)}</div>
+        <div style="font-size:11px;color:var(--muted)">${diffDays(b.from,b.to)} d&iacute;a(s) bloqueados</div>
+      </div>
+      <button onclick="removeBlock(${b.id})" style="background:var(--red-dim);border:1px solid rgba(255,90,90,.3);border-radius:6px;padding:5px 11px;color:var(--red);font-size:12px;font-weight:500;cursor:pointer;font-family:var(--fb)">Eliminar</button>
+    </div>
+  `).join('');
+}
+
+function fmtDate(d){const p=d.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
+function diffDays(a,b){return Math.round((new Date(b)-new Date(a))/(1000*60*60*24))+1;}
+
+function saveAgenda(){
+  const activeDays=AGENDA_DAYS.filter((_,i)=>agendaState.schActive[i]);
+  if(!activeDays.length){showToast('Activa al menos un d&iacute;a h&aacute;bil','error');return;}
+  showToast('&#10003; Agenda guardada &mdash; se activar&aacute; al aprobar tu cuenta','success');
+  setTimeout(()=>closeAgendaPanel(),1800);
+}
+
+function showToast(msg,type=''){
+  const t=document.getElementById('toast');t.innerHTML=msg;t.className='toast show'+(type?' '+type:'');
+  setTimeout(()=>t.classList.remove('show'),3200);
+}
+
+document.querySelectorAll('.lang-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.lang === getLang()); });
+buildNav();
+</script>
+</body>
+</html>
